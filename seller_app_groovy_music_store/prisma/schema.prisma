@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model PerfilVendedor {
+  clerk_user_id String     @id
+  descripcion   String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  productos     Producto[]
+}
+
+model Producto {
+  id          String     @id @default(uuid())
+  seller_id   String
+  titulo      String
+  descripcion String?
+  artista     String
+  genero      String
+  formato     Formato
+  condicion   Condicion
+  precio      Decimal
+  stock       Int        @default(0)
+  imagenes    String[]
+  activo      Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  vendedor    PerfilVendedor @relation(fields: [seller_id], references: [clerk_user_id])
+  ventas      Venta[]
+}
+
+model Venta {
+  id                 String            @id @default(uuid())
+  product_id         String
+  order_id_externo   String
+  buyer_id_externo   String
+  cantidad           Int               @default(1)
+  precio_unitario    Decimal
+  estado_preparacion EstadoPreparacion @default(PENDIENTE)
+  envio_id_externo   String?
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
+  producto           Producto          @relation(fields: [product_id], references: [id])
+}
+
+enum Formato {
+  VINILO
+  CD
+  CASSETTE
+  MERCHANDISE
+  OTRO
+}
+
+enum Condicion {
+  NUEVO
+  COMO_NUEVO
+  BUENO
+  ACEPTABLE
+}
+
+enum EstadoPreparacion {
+  PENDIENTE
+  PREPARANDO
+  LISTO_PARA_ENVIO
+  ENVIADO
+}
