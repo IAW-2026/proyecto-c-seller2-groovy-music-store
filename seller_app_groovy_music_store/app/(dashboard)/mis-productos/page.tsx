@@ -14,42 +14,57 @@ export default async function MisProductosPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Mis Productos</h1>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="font-cormorant text-4xl font-light">Mis Productos</h1>
+          <p className="font-dm text-sm text-medium mt-1">
+            {productos.length} producto{productos.length !== 1 ? "s" : ""} publicado{productos.length !== 1 ? "s" : ""}
+          </p>
+        </div>
         <Link
           href="/mis-productos/nuevo"
-          className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+          className="font-dm text-sm bg-foreground text-white px-5 py-2.5 rounded hover:opacity-90 transition-opacity"
         >
           + Nuevo producto
         </Link>
       </div>
 
       {productos.length === 0 ? (
-        <p className="text-gray-500">No tenés productos publicados todavía.</p>
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <p className="font-cormorant text-2xl text-medium">
+            No tenés productos publicados todavía
+          </p>
+          <Link
+            href="/mis-productos/nuevo"
+            className="font-dm text-sm text-primary hover:underline mt-3 inline-block"
+          >
+            Publicar primer producto →
+          </Link>
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {productos.map((producto) => (
             <div
               key={producto.id}
-              className="border rounded p-4 flex justify-between items-center bg-white"
+              className="bg-card border border-border rounded-xl p-5 flex justify-between items-center hover:shadow-sm transition-shadow"
             >
               <div>
-                <h2 className="font-semibold">{producto.titulo}</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="font-syne font-semibold text-foreground">
+                  {producto.titulo}
+                </h2>
+                <p className="font-dm text-sm text-medium mt-0.5">
                   {producto.artista} — {producto.formato}
                 </p>
-                <p className="text-sm">
+                <p className="font-dm text-sm text-foreground mt-1">
                   ${producto.precio.toString()} · Stock: {producto.stock}
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Link
-                  href={`/mis-productos/${producto.id}/editar`}
-                  className="text-sm border px-3 py-1 rounded hover:bg-gray-100"
-                >
-                  Editar
-                </Link>
-              </div>
+              <Link
+                href={`/mis-productos/${producto.id}/editar`}
+                className="font-dm text-sm border border-border px-4 py-1.5 rounded hover:bg-background transition-colors"
+              >
+                Editar
+              </Link>
             </div>
           ))}
         </div>

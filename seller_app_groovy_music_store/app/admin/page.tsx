@@ -9,19 +9,31 @@ export default async function AdminPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Overview</h1>
+      <div className="mb-8">
+        <h1 className="font-cormorant text-4xl font-light">Overview</h1>
+        <p className="font-dm text-sm text-medium mt-1">
+          Estado general del sistema
+        </p>
+      </div>
+
       <div className="grid grid-cols-3 gap-4">
-        <div className="border rounded p-6 bg-white text-center">
-          <p className="text-4xl font-bold">{totalProductos}</p>
-          <p className="text-gray-500 mt-1">Productos activos</p>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="font-cormorant text-5xl font-light text-foreground">
+            {totalProductos}
+          </p>
+          <p className="font-dm text-sm text-medium mt-2">Productos activos</p>
         </div>
-        <div className="border rounded p-6 bg-white text-center">
-          <p className="text-4xl font-bold">{totalVentas}</p>
-          <p className="text-gray-500 mt-1">Ventas totales</p>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="font-cormorant text-5xl font-light text-foreground">
+            {totalVentas}
+          </p>
+          <p className="font-dm text-sm text-medium mt-2">Ventas totales</p>
         </div>
-        <div className="border rounded p-6 bg-white text-center">
-          <p className="text-4xl font-bold">{totalVendedores}</p>
-          <p className="text-gray-500 mt-1">Vendedores registrados</p>
+        <div className="bg-card border border-border rounded-xl p-6">
+          <p className="font-cormorant text-5xl font-light text-foreground">
+            {totalVendedores}
+          </p>
+          <p className="font-dm text-sm text-medium mt-2">Vendedores registrados</p>
         </div>
       </div>
     </div>

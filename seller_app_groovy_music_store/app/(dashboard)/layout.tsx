@@ -15,21 +15,53 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-gray-900 text-white p-6 flex flex-col gap-4">
-        <h1 className="text-xl font-bold">Groovy Music Store</h1>
-        <nav className="flex flex-col gap-2">
-          <Link href="/dashboard" className="hover:text-gray-300">Inicio</Link>
-          <Link href="/mis-productos" className="hover:text-gray-300">Mis productos</Link>
-          <Link href="/mis-ventas" className="hover:text-gray-300">Mis ventas</Link>
-          <Link href="/balance" className="hover:text-gray-300">Balance</Link>
+      <aside className="w-64 bg-foreground text-white p-6 flex flex-col gap-6 shrink-0">
+        <div>
+          <h1 className="font-cormorant text-2xl font-light tracking-[0.2em] uppercase">
+            Groovy
+          </h1>
+          <p className="font-dm text-xs text-white/50 tracking-widest uppercase mt-1">
+            Panel del vendedor
+          </p>
+        </div>
+
+        <nav className="flex flex-col gap-1">
+          <Link
+            href="/dashboard"
+            className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
+          >
+            Inicio
+          </Link>
+          <Link
+            href="/mis-productos"
+            className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
+          >
+            Mis productos
+          </Link>
+          <Link
+            href="/mis-ventas"
+            className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
+          >
+            Mis ventas
+          </Link>
+          <Link
+            href="/balance"
+            className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
+          >
+            Balance
+          </Link>
           {esAdmin && (
-            <Link href="/admin" className="hover:text-gray-300 mt-4 text-yellow-400">
+            <Link
+              href="/admin"
+              className="font-dm text-sm text-primary hover:text-white hover:bg-primary/20 px-3 py-2 rounded transition-colors mt-4 border border-primary/30"
+            >
               ⚙ Panel Admin
             </Link>
           )}
         </nav>
       </aside>
-      <main className="flex-1 p-8 bg-gray-50">
+
+      <main className="flex-1 p-8 bg-background">
         {children}
       </main>
     </div>
