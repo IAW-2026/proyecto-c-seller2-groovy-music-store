@@ -29,28 +29,40 @@ export default async function MisVentasPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-6">Mis Ventas</h1>
+      <div className="mb-8">
+        <h1 className="font-cormorant text-4xl font-light">Mis Ventas</h1>
+        <p className="font-dm text-sm text-medium mt-1">
+          {ventas.length} venta{ventas.length !== 1 ? "s" : ""} registrada{ventas.length !== 1 ? "s" : ""}
+        </p>
+      </div>
 
       {ventas.length === 0 ? (
-        <p className="text-gray-500">No tenés ventas todavía.</p>
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
+          <p className="font-cormorant text-2xl text-medium">
+            No tenés ventas todavía
+          </p>
+          <p className="font-dm text-sm text-medium mt-2">
+            Las ventas aparecen cuando un comprador confirma una orden
+          </p>
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3">
           {ventas.map((venta) => (
             <div
               key={venta.id}
-              className="border rounded p-4 bg-white flex justify-between items-center"
+              className="bg-card border border-border rounded-xl p-5 flex justify-between items-center"
             >
               <div>
-                <h2 className="font-semibold">{venta.producto.titulo}</h2>
-                <p className="text-sm text-gray-500">
-                  Cantidad: {venta.cantidad} · Precio unitario: ${venta.precio_unitario.toString()}
+                <h2 className="font-syne font-semibold text-foreground">
+                  {venta.producto.titulo}
+                </h2>
+                <p className="font-dm text-sm text-medium mt-0.5">
+                  Cantidad: {venta.cantidad} · ${venta.precio_unitario.toString()} c/u
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="font-dm text-xs text-medium mt-0.5">
                   Orden: {venta.order_id_externo}
                 </p>
-                <span
-                  className={`inline-block mt-1 text-xs px-2 py-1 rounded-full font-medium ${colorEstado[venta.estado_preparacion]}`}
-                >
+                <span className={`inline-block mt-2 font-dm text-xs px-2.5 py-1 rounded-full font-medium ${colorEstado[venta.estado_preparacion]}`}>
                   {etiquetaEstado[venta.estado_preparacion]}
                 </span>
               </div>
@@ -59,9 +71,9 @@ export default async function MisVentasPage() {
                 <form action={avanzarEstado.bind(null, venta.id)}>
                   <button
                     type="submit"
-                    className="text-sm border px-3 py-1 rounded hover:bg-gray-100"
+                    className="font-dm text-sm border border-border px-4 py-2 rounded-lg hover:bg-background transition-colors"
                   >
-                    Avanzar estado →
+                    Avanzar →
                   </button>
                 </form>
               )}
