@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import SignOutBtn from "@/components/SignOutBtn";
 
 export default async function DashboardLayout({
   children,
@@ -58,6 +59,9 @@ export default async function DashboardLayout({
               ⚙ Panel Admin
             </Link>
           )}
+          <div className="mt-auto">
+            <SignOutBtn />
+          </div>
         </nav>
       </aside>
 
