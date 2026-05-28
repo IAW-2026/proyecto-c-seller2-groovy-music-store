@@ -1,22 +1,26 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { verifyToken } from "@clerk/nextjs/server";
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Verificar API key de la Buyer App
-  const apiKey = request.headers.get("X-API-Key");
-  if (apiKey !== process.env.BUYER_APP_API_KEY) {
-    return NextResponse.json(
-      { error: "No autorizado" },
-      { status: 401 }
-    );
+  const authHeader = request.headers.get("Authorization");
+  const token = authHeader?.replace("Bearer ", "");
+  if (!token) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  try {
+    await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY! });
+  } catch {
+    return NextResponse.json({ error: "Token inválido" }, { status: 401 });
   }
 
   const { id } = await params;
   const body = await request.json();
-  const { order_id, buyer_id, cantidad = 1 } = body;
+  const { order_id, buyer_id, cantidad = 1, precio_unit } = body;
 
   if (!order_id || !buyer_id) {
     return NextResponse.json(
@@ -36,29 +40,16 @@ export async function POST(
     );
   }
 
-  if (producto.stock < cantidad) {
-    return NextResponse.json(
-      { error: "Stock insuficiente" },
-      { status: 409 }
-    );
-  }
-
-  const venta = await prisma.$transaction(async (tx) => {
-    await tx.producto.update({
-      where: { id },
-      data: { stock: { decrement: cantidad } },
-    });
-
-    return tx.venta.create({
-      data: {
-        product_id: id,
-        order_id_externo: order_id,
-        buyer_id_externo: buyer_id,
-        cantidad,
-        precio_unitario: producto.precio,
-        estado_preparacion: "PENDIENTE",
-      },
-    });
+  // Stock ya fue descontado por reserve — solo crear la venta
+  const venta = await prisma.venta.create({
+    data: {
+      product_id: id,
+      order_id_externo: order_id,
+      buyer_id_externo: buyer_id,
+      cantidad,
+      precio_unitario: precio_unit ?? producto.precio,
+      estado_preparacion: "PENDIENTE",
+    },
   });
 
   return NextResponse.json({
@@ -67,7 +58,6 @@ export async function POST(
     producto: {
       id: producto.id,
       titulo: producto.titulo,
-      stockRestante: producto.stock - cantidad,
     },
   });
 }

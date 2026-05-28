@@ -33,6 +33,7 @@ model Producto {
   updated_at  DateTime   @updatedAt
   vendedor    PerfilVendedor @relation(fields: [seller_id], references: [clerk_user_id])
   ventas      Venta[]
+  reservas    ItemReserva[]
 }
 
 model Venta {
@@ -47,6 +48,35 @@ model Venta {
   created_at         DateTime          @default(now())
   updated_at         DateTime          @updatedAt
   producto           Producto          @relation(fields: [product_id], references: [id])
+}
+
+model Reserva {
+  id               String          @id @default(uuid())
+  order_id_externo String          @unique
+  buyer_id_externo String
+  seller_id        String
+  estado           EstadoReserva   @default(ACTIVA)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+  items            ItemReserva[]
+}
+
+model ItemReserva {
+  id          String   @id @default(uuid())
+  reserva_id  String
+  product_id  String
+  cantidad    Int
+  precio_unit Decimal
+  created_at  DateTime @default(now())
+
+  reserva     Reserva  @relation(fields: [reserva_id], references: [id])
+  producto    Producto @relation(fields: [product_id], references: [id])
+}
+
+enum EstadoReserva {
+  ACTIVA
+  CONFIRMADA
+  LIBERADA
 }
 
 enum Formato {
