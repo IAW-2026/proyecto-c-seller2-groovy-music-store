@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import SignOutBtn from "@/components/SignOutBtn";
+import { prisma } from "@/lib/prisma";
 
 export default async function DashboardLayout({
   children,
@@ -10,6 +11,14 @@ export default async function DashboardLayout({
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+
+  const perfil = await prisma.perfilVendedor.findUnique({
+    where: { clerk_user_id: userId },
+  });
+
+  if (!perfil?.nombre || !perfil?.direccion || !perfil?.codigo_postal) {
+    redirect("/onboarding");
+  }
 
   return (
     <div className="flex min-h-screen">
