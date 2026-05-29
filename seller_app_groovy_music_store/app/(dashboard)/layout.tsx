@@ -1,6 +1,7 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import SignOutBtn from "@/components/SignOutBtn";
 import { prisma } from "@/lib/prisma";
 
@@ -12,9 +13,12 @@ export default async function DashboardLayout({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const perfil = await prisma.perfilVendedor.findUnique({
-    where: { clerk_user_id: userId },
-  });
+  const [perfil, user] = await Promise.all([
+    prisma.perfilVendedor.findUnique({
+      where: { clerk_user_id: userId },
+    }),
+    currentUser(),
+  ]);
 
   if (!perfil?.nombre || !perfil?.direccion || !perfil?.codigo_postal) {
     redirect("/onboarding");
@@ -22,17 +26,37 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-foreground text-white p-6 flex flex-col gap-6 shrink-0">
-        <div>
-          <h1 className="font-cormorant text-2xl font-light tracking-[0.2em] uppercase">
-            Groovy
-          </h1>
-          <p className="font-dm text-xs text-white/50 tracking-widest uppercase mt-1">
-            Panel del vendedor
-          </p>
+      <aside className="w-64 bg-foreground text-white flex flex-col shrink-0">
+
+        {/* Header con foto y nombre */}
+        <div className="p-6 border-b border-white/10 flex flex-col items-center gap-3">
+          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20">
+            {user?.imageUrl ? (
+              <Image
+                src={user.imageUrl}
+                alt={perfil.nombre ?? "Vendedor"}
+                width={64}
+                height={64}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <div className="w-full h-full bg-white/10 flex items-center justify-center font-cormorant text-2xl">
+                {perfil.nombre?.[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="text-center">
+            <p className="font-syne text-sm font-semibold text-white leading-tight">
+              {perfil.nombre}
+            </p>
+            <p className="font-dm text-xs text-white/50 mt-0.5">
+              @{user?.firstName?.toLowerCase()}
+            </p>
+          </div>
         </div>
 
-        <nav aria-label="Navegación principal" className="flex flex-col gap-1">
+        {/* Navegación */}
+        <nav aria-label="Navegación principal" className="flex flex-col gap-1 p-4 flex-1">
           <Link
             href="/dashboard"
             className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
@@ -57,10 +81,19 @@ export default async function DashboardLayout({
           >
             Balance
           </Link>
-          <div className="mt-auto">
-            <SignOutBtn />
-          </div>
         </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-white/10 flex flex-col gap-1">
+          <Link
+            href="/perfil"
+            className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors"
+          >
+            ⚙ Configuración
+          </Link>
+          <SignOutBtn />
+        </div>
+
       </aside>
 
       <main role="main" className="flex-1 p-8 bg-background">
