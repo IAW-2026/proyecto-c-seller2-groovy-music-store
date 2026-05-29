@@ -35,6 +35,8 @@ export async function editarProducto(
   const condicion = formData.get("condicion") as string;
   const precio = formData.get("precio") as string;
   const stock = formData.get("stock") as string;
+  const imagenesRaw = formData.get("imagenes") as string;
+  const imagenes = imagenesRaw ? JSON.parse(imagenesRaw) : producto.imagenes;
 
   const errors: FormState["errors"] = {};
 
@@ -67,6 +69,7 @@ export async function editarProducto(
         condicion: condicion as "NUEVO" | "COMO_NUEVO" | "BUENO" | "ACEPTABLE",
         precio: Number(precio),
         stock: Number(stock),
+        imagenes: imagenes,
       },
     });
   } catch {

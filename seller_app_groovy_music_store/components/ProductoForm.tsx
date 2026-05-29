@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import ImageUploader from "@/components/ImageUploader";
 
 type FormState = {
   errors?: {
@@ -23,6 +24,7 @@ type Props = {
     condicion: string;
     precio: string;
     stock: string;
+    imagenes?: string[];
   };
 };
 
@@ -30,6 +32,8 @@ const initialState: FormState = {};
 
 export default function ProductoForm({ action, initialData }: Props) {
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const [imagenes, setImagenes] = useState<string[]>(initialData?.imagenes ?? []);
+
 
   return (
     <form action={formAction} className="flex flex-col gap-5 max-w-lg">
@@ -91,6 +95,13 @@ export default function ProductoForm({ action, initialData }: Props) {
           className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-card focus:outline-none focus:border-foreground transition-colors"
           placeholder="Ej: Rock, Jazz, Cumbia"
         />
+      </div>
+
+      <div>
+        <label className="font-dm text-sm font-medium text-foreground block mb-1">
+          Imágenes
+        </label>
+        <ImageUploader value={imagenes} onChange={setImagenes} />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
