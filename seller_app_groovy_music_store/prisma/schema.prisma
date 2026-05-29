@@ -11,6 +11,9 @@ datasource db {
 model PerfilVendedor {
   clerk_user_id String     @id
   descripcion   String?
+  nombre        String?
+  direccion     String?
+  codigo_postal String?
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt
   productos     Producto[]
