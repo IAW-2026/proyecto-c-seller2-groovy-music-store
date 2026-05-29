@@ -37,6 +37,7 @@ export default async function EditarProductoPage({
           condicion: producto.condicion,
           precio: producto.precio.toString(),
           stock: producto.stock.toString(),
+          imagenes: producto.imagenes,
         }}
       />
       <form action={desactivarConId} className="mt-6">
