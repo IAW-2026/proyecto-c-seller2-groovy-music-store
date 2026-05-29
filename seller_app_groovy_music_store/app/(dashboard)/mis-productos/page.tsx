@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import BuscadorProductos from "@/components/BuscadorProductos";
+import Image from "next/image";
+
 
 const LIMITE = 4;
 
@@ -77,11 +79,27 @@ export default async function MisProductosPage({
       ) : (
         <>
           <div className="grid gap-3">
-            {productos.map((producto) => (
-              <div
-                key={producto.id}
-                className="bg-card border border-border rounded-xl p-5 flex justify-between items-center hover:shadow-sm transition-shadow"
-              >
+          {productos.map((producto) => (
+            <div
+              key={producto.id}
+              className="bg-card border border-border rounded-xl p-5 flex justify-between items-center hover:shadow-sm transition-shadow"
+            >
+              <div className="flex items-center gap-4">
+                {producto.imagenes[0] ? (
+                  <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-border shrink-0">
+                    <Image
+                      src={producto.imagenes[0]}
+                      alt={producto.titulo}
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg border border-border bg-background flex items-center justify-center shrink-0">
+                    <span className="font-dm text-xs text-medium">Sin foto</span>
+                  </div>
+                )}
                 <div>
                   <h2 className="font-syne font-semibold text-foreground">
                     {producto.titulo}
@@ -93,14 +111,15 @@ export default async function MisProductosPage({
                     ${producto.precio.toString()} · Stock: {producto.stock}
                   </p>
                 </div>
-                <Link
-                  href={`/mis-productos/${producto.id}/editar`}
-                  className="font-dm text-sm border border-border px-4 py-1.5 rounded hover:bg-background transition-colors"
-                >
-                  Editar
-                </Link>
               </div>
-            ))}
+              <Link
+                href={`/mis-productos/${producto.id}/editar`}
+                className="font-dm text-sm border border-border px-4 py-1.5 rounded hover:bg-background transition-colors"
+              >
+                Editar
+              </Link>
+            </div>
+          ))}
           </div>
 
           {totalPaginas > 1 && (
