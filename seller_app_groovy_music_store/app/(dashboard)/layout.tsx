@@ -11,9 +11,6 @@ export default async function DashboardLayout({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const adminIds = process.env.ADMIN_USER_IDS?.split(",") ?? [];
-  const esAdmin = adminIds.includes(userId);
-
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 bg-foreground text-white p-6 flex flex-col gap-6 shrink-0">
@@ -51,14 +48,6 @@ export default async function DashboardLayout({
           >
             Balance
           </Link>
-          {esAdmin && (
-            <Link
-              href="/admin"
-              className="font-dm text-sm text-primary hover:text-white hover:bg-primary/20 px-3 py-2 rounded transition-colors mt-4 border border-primary/30"
-            >
-              ⚙ Panel Admin
-            </Link>
-          )}
           <div className="mt-auto">
             <SignOutBtn />
           </div>
