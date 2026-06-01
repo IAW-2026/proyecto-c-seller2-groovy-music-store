@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import SignOutBtn from "@/components/SignOutBtn";
+import { esAdmin } from "@/lib/admin"; 
 
 export default async function DashboardLayout({
   children,
@@ -12,6 +13,8 @@ export default async function DashboardLayout({
 }) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+
+  if (esAdmin(userId)) redirect("/admin");
 
   const [perfil, user] = await Promise.all([
     prisma.perfilVendedor.findUnique({
