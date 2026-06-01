@@ -1,5 +1,6 @@
 import { requireAdmin } from "@/lib/admin";
 import Link from "next/link";
+import SignOutBtn from "@/components/SignOutBtn";
 
 export default async function AdminLayout({
   children,
@@ -20,7 +21,7 @@ export default async function AdminLayout({
           </p>
         </div>
 
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-1 flex-1">
           <Link href="/admin" className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors">
             Overview
           </Link>
@@ -30,10 +31,12 @@ export default async function AdminLayout({
           <Link href="/admin/vendedores" className="font-dm text-sm text-white/70 hover:text-white hover:bg-white/10 px-3 py-2 rounded transition-colors">
             Vendedores
           </Link>
-          <Link href="/dashboard" className="font-dm text-sm text-primary hover:text-white hover:bg-primary/20 px-3 py-2 rounded transition-colors mt-4 border border-primary/30">
-            ← Panel vendedor
-          </Link>
         </nav>
+
+        <div className="border-t border-white/10 pt-4">  {/* ← agregar logout */}
+          <SignOutBtn />
+        </div>
+
       </aside>
 
       <main role="main" className="flex-1 p-8 bg-background">
