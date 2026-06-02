@@ -1,114 +1,46 @@
-# Groovy Music Store — Seller App
+## 🔗 Deploy de producción
 
-Panel de vendedores para **Groovy Music Store**, un marketplace de música física (vinilos, CDs, cassettes). Parte de un sistema de cuatro aplicaciones desarrollado para la materia Ingeniería de Aplicaciones Web — UNS 2026.
+[https://proyecto-c-seller2-groovy-music-sto.vercel.app](https://proyecto-c-seller2-groovy-music-sto.vercel.app)
 
-## 🔗 Link de producción
+---
 
-> **[https://proyecto-c-seller2-groovy-music-sto.vercel.app](https://proyecto-c-seller2-groovy-music-sto.vercel.app)**
+## 👤 Usuarios disponibles
 
-## 👤 Credenciales de prueba
+| Rol | Email | Contraseña | Acceso |
+|-----|-------|------------|--------|
+| Vendedor | `seller+clerktest@iaw.com` | `iawuser#` | `/dashboard` |
+| Admin | `admin_seller+clerktest@iaw.com` | `iawuser#` | `/admin` |
 
-| Rol | Usuario | Contraseña | Acceso |
-|-----|---------|------------|--------|
-| Vendedor | `seller_groovy` | `IAWEB_2026` | `/dashboard` |
-| Admin | `admin_seller_groovy` | `IAWEB_2026` | `/admin` |
+---
 
-## 📋 Responsabilidad de esta app
+## 📋 Instrucciones de uso
 
-Interfaz para vendedores: publicación y gestión de productos, gestión de ventas y stock, panel de administración.
+**Panel vendedor** — ingresar con `seller+clerktest@iaw.com`:
+- `/dashboard` — resumen general con estadísticas de ventas e ingresos
+- `/mis-productos` — listado con búsqueda por título/artista, filtros por formato y género, paginación. Permite publicar, editar y eliminar productos
+- `/mis-ventas` — gestión de órdenes con avance de estado (Pendiente → Preparando → Listo para envío → Enviado)
+- `/balance` — consulta de acreditaciones (mockeado para Etapa 2, se integra con Payments App en Etapa 3)
+- `/perfil` — edición del perfil del negocio
 
-## ⚙️ Stack tecnológico
+**Panel admin** — ingresar con `admin_seller+clerktest@iaw.com`:
+- `/admin` — overview con totales del sistema
+- `/admin/productos` — listado completo de productos con opción de desactivar
+- `/admin/vendedores` — listado de vendedores con conteo de productos activos y ventas
 
-| Capa | Tecnología |
-|------|------------|
-| Framework | Next.js 16 (App Router) |
-| Base de datos | PostgreSQL (Neon) |
-| ORM | Prisma 6 |
-| Autenticación | Clerk |
-| Estilos | Tailwind CSS |
-| Deploy | Vercel |
-| Imágenes | Cloudinary |
+---
 
-## 🗂️ Páginas implementadas
+## 📝 Descripción del proyecto
 
-### Panel vendedor (`/dashboard`)
-- **Inicio** — resumen de productos activos, ventas por estado e ingresos totales
-- **Mis productos** — listado con búsqueda, paginación, alta y edición
-- **Mis ventas** — gestión de órdenes con avance de estado (Pendiente → Preparando → Listo para envío → Enviado)
-- **Balance** — consulta de acreditaciones (mockeado, se integra con Payments App en Etapa 2)
-- **Perfil** — configuración del negocio (nombre, dirección, código postal)
+**Groovy Music Store — Seller App** es el panel de vendedores de un marketplace de música física (vinilos, CDs y cassettes). Permite a los vendedores publicar y gestionar su catálogo, hacer seguimiento de sus ventas y consultar su balance. Forma parte de un sistema de cuatro aplicaciones independientes (Buyer App, Seller App, Shipping App y Payments App), cada una con su propia base de datos y autenticación compartida mediante Clerk.
 
-### Panel admin (`/admin`)
-- **Overview** — totales del sistema (productos, ventas, vendedores)
-- **Productos** — listado completo con opción de desactivar
-- **Vendedores** — listado con conteo de productos activos y ventas por vendedor
+La aplicación expone una API REST que será consumida por la Buyer App en la Etapa 3: catálogo de productos con búsqueda y filtros, consulta por lote de IDs, reserva de stock, confirmación de venta y liberación de stock ante pagos fallidos. La lógica de reserva implementa un modelo transaccional con estados (ACTIVA / CONFIRMADA / LIBERADA) para garantizar consistencia ante operaciones concurrentes.
 
-## 🔌 APIs expuestas (consumidas por otras apps)
+---
 
-| Método | Endpoint | Descripción | Consumidor |
-|--------|----------|-------------|------------|
-| `GET` | `/api/products` | Catálogo paginado con filtros | Buyer App |
-| `GET` | `/api/products/:id` | Detalle de producto | Buyer App |
-| `POST` | `/api/products/batch` | Consulta múltiple por IDs | Buyer App |
-| `POST` | `/api/orders/reserve` | Reservar stock de una orden | Buyer App |
-| `POST` | `/api/orders/confirm` | Confirmar venta tras pago aprobado | Buyer App |
-| `POST` | `/api/orders/release` | Liberar stock por pago fallido | Buyer App |
+## 🗒️ Notas para la corrección
 
-Autenticación inter-servicios: `Authorization: Bearer <JWT>` (o `X-API-Key` para Etapa 2).
-
-## 🗃️ Modelo de datos
-
-Entidades propias: `PerfilVendedor`, `Producto`, `Venta`, `Reserva`, `ItemReserva`.
-
-IDs externos (no se guardan localmente): `buyer_id`, `order_id`, `envio_id`.
-
-## 🚀 Correr localmente
-
-```bash
-# 1. Instalar dependencias
-npm install
-
-# 2. Configurar variables de entorno
-cp .env.example .env.local
-# Completar los valores en .env.local
-
-# 3. Generar cliente Prisma
-npx prisma generate
-
-# 4. Ejecutar migraciones
-npx dotenv -e .env.local -- prisma migrate dev
-
-# 5. Cargar datos de prueba
-npx tsx prisma/seed.ts
-
-# 6. Iniciar servidor de desarrollo
-npm run dev
-```
-
-## 🔑 Variables de entorno
-
-Ver `.env.example` para la lista completa. Las principales:
-
-```
-DATABASE_URL=                           # Connection string de PostgreSQL (Neon)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=      # Clave pública de Clerk
-CLERK_SECRET_KEY=                       # Clave secreta de Clerk
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=      # Nombre del cloud en Cloudinary
-ADMIN_USER_IDS=                         # clerk_user_id del admin, separados por coma si hay más de uno
-BUYER_APP_API_KEY=                      # API key para autenticación M2M con Buyer App (Etapa 2)
-```
-
-## 🏗️ Arquitectura
-
-Esta app es parte de un sistema de microservicios:
-
-```
-Buyer App ──→ Seller App (esta)
-           ──→ Payments App
-           ──→ Shipping App
-
-Seller App ──→ Shipping App (crear envío)
-           ──→ Payments App (consultar balance)
-```
-
-Durante la Etapa 1 las llamadas a otras apps están mockeadas. La integración real se realiza en la Etapa 2.
+- **Llamadas inter-app mockeadas:** el balance (`/balance`) consulta `PAYMENTS_APP_URL` con fallback a datos simulados, ya que Payments App no está integrada en esta etapa.
+- **Datos precargados:** 24 productos activos (10 vinilos, 7 CDs, 5 cassettes, 2 desactivados) y 20 ventas distribuidas en todos los estados posibles, accesibles con el usuario vendedor.
+- **Productos desactivados:** visibles en `/admin/productos` pero no en el catálogo público. Permiten evaluar el flujo de moderación del panel admin.
+- **API externa:** las imágenes de productos se gestionan mediante Cloudinary (upload y almacenamiento).
+- **Autorización inter-servicios:** los endpoints de la API aceptan `Authorization: Bearer <JWT>` y también `X-API-Key` como mecanismo alternativo para comunicación M2M en Etapa 3.
