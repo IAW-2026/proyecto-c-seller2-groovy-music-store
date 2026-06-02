@@ -8,21 +8,21 @@
 
 | Rol | Email | Contraseña | Acceso |
 |-----|-------|------------|--------|
-| Vendedor | `seller+clerktest@iaw.com` | `iawuser#` | `/dashboard` |
-| Admin | `admin_seller+clerktest@iaw.com` | `iawuser#` | `/admin` |
+| Vendedor | `seller+clerk_test@iaw.com` | `iawuser#` | `/dashboard` |
+| Admin | `admin_seller+clerk_test@iaw.com` | `iawuser#` | `/admin` |
 
 ---
 
 ## 📋 Instrucciones de uso
 
-**Panel vendedor** — ingresar con `seller+clerktest@iaw.com`:
+**Panel vendedor** — ingresar con `seller+clerk_test@iaw.com`:
 - `/dashboard` — resumen general con estadísticas de ventas e ingresos
 - `/mis-productos` — listado con búsqueda por título/artista, filtros por formato y género, paginación. Permite publicar, editar y eliminar productos
 - `/mis-ventas` — gestión de órdenes con avance de estado (Pendiente → Preparando → Listo para envío → Enviado)
 - `/balance` — consulta de acreditaciones (mockeado para Etapa 2, se integra con Payments App en Etapa 3)
 - `/perfil` — edición del perfil del negocio
 
-**Panel admin** — ingresar con `admin_seller+clerktest@iaw.com`:
+**Panel admin** — ingresar con `admin_seller+clerk_test@iaw.com`:
 - `/admin` — overview con totales del sistema
 - `/admin/productos` — listado completo de productos con opción de desactivar
 - `/admin/vendedores` — listado de vendedores con conteo de productos activos y ventas
