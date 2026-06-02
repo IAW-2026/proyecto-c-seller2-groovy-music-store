@@ -1,10 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { esAdmin } from "@/lib/admin";
 
 export default async function Home() {
   const { userId } = await auth();
-  if (userId) redirect("/dashboard");
+  if (userId) {
+    if (esAdmin(userId)) redirect("/admin");
+    redirect("/dashboard");
+  }
 
   return (
     <main className="min-h-screen bg-background flex flex-col">

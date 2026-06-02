@@ -2,11 +2,14 @@ import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 function getAdminIds(): string[] {
-  return process.env.ADMIN_USER_IDS?.split(",").map((id) => id.trim()) ?? [];
+  return process.env.ADMIN_USER_IDS
+    ?.split(",")
+    .map((id) => id.trim())
+    .filter(Boolean) ?? [];
 }
 
 export function esAdmin(userId: string): boolean {
-  return getAdminIds().includes(userId);
+  return getAdminIds().includes(userId?.trim());
 }
 
 export async function requireAdmin(): Promise<string> {

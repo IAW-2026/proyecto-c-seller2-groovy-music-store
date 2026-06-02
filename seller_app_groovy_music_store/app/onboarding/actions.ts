@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { esAdmin } from "@/lib/admin";
 
 type FormState = {
   errors?: {
@@ -19,6 +20,7 @@ export async function completarPerfil(
 ): Promise<FormState> {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+  if (esAdmin(userId)) redirect("/admin");
 
   const nombre = formData.get("nombre") as string;
   const descripcion = formData.get("descripcion") as string;
