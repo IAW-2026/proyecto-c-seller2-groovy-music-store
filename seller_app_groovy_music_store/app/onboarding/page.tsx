@@ -1,11 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { esAdmin } from "@/lib/admin";
 import OnboardingForm from "@/components/OnboardingForm";
 
 export default async function OnboardingPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+
+  if (esAdmin(userId)) redirect("/admin");
 
   // Si ya tiene perfil completo, redirigir al dashboard
   const perfil = await prisma.perfilVendedor.findUnique({
