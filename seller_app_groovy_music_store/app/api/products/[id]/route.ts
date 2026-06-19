@@ -20,7 +20,7 @@ export async function GET(
 
   return NextResponse.json({
     ...producto,
-    precio: producto.precio.toString(),
+    precio: Number(producto.precio),
     seller_id: { id: producto.seller_id },
   });
 }

@@ -20,9 +20,9 @@ export async function POST(request: NextRequest) {
   });
 
   return NextResponse.json({
-    productos: productos.map((p) => ({
+    datos: productos.map((p) => ({
       ...p,
-      precio: p.precio.toString(),
+      precio: Number(p.precio),
       seller_id: { id: p.seller_id },
     })),
   });
