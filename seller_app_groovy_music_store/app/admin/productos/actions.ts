@@ -15,3 +15,15 @@ export async function desactivarProductoAdmin(id: string) {
 
   redirect("/admin/productos");
 }
+
+export async function activarProductoAdmin(id: string) {
+  const userId = await checkAdminApi();
+  if (!userId) redirect("/dashboard");
+
+  await prisma.producto.update({
+    where: { id },
+    data: { activo: true },
+  });
+
+  redirect("/admin/productos");
+}
