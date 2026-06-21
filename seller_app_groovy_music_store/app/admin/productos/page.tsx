@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { desactivarProductoAdmin } from "./actions";
+import { desactivarProductoAdmin, activarProductoAdmin } from "./actions";
 
 export default async function AdminProductosPage() {
   const productos = await prisma.producto.findMany({
@@ -44,13 +44,22 @@ export default async function AdminProductosPage() {
               </p>
             </div>
 
-            {producto.activo && (
+            {producto.activo ? (
               <form action={desactivarProductoAdmin.bind(null, producto.id)}>
                 <button
                   type="submit"
                   className="font-dm text-sm text-primary border border-primary/40 px-4 py-1.5 rounded-lg hover:bg-primary/5 transition-colors"
                 >
                   Desactivar
+                </button>
+              </form>
+            ) : (
+              <form action={activarProductoAdmin.bind(null, producto.id)}>
+                <button
+                  type="submit"
+                  className="font-dm text-sm text-green-700 border border-green-600/40 px-4 py-1.5 rounded-lg hover:bg-green-50 transition-colors"
+                >
+                  Activar
                 </button>
               </form>
             )}
