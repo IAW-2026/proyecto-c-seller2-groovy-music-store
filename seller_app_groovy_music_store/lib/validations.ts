@@ -1,0 +1,26 @@
+import { z } from "zod";
+
+export const productoSchema = z.object({
+  titulo: z.string().trim().min(1, "El título es obligatorio"),
+  artista: z.string().trim().min(1, "El artista es obligatorio"),
+  descripcion: z.string().trim().optional(),
+  // TODO Etapa 3: cuando el equipo defina la lista de géneros permitidos,
+  // reemplazar por z.enum([...]) para validar contra esa lista.
+  genero: z.string().trim(),
+  formato: z.enum(["VINILO", "CD", "CASSETTE", "MERCHANDISE", "OTRO"]),
+  condicion: z.enum(["NUEVO", "COMO_NUEVO", "BUENO", "ACEPTABLE"]),
+  precio: z.coerce
+    .number()
+    .positive("El precio debe ser un número mayor a 0"),
+  stock: z.coerce
+    .number()
+    .int("El stock debe ser un número entero")
+    .nonnegative("El stock no puede ser negativo"),
+});
+
+export const perfilSchema = z.object({
+  nombre: z.string().trim().min(1, "El nombre del negocio es obligatorio"),
+  descripcion: z.string().trim().optional(),
+  direccion: z.string().trim().min(1, "La dirección es obligatoria"),
+  codigo_postal: z.string().trim().min(1, "El código postal es obligatorio"),
+});

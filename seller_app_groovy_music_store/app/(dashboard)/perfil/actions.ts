@@ -3,6 +3,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { perfilSchema } from "@/lib/validations";
 
 type FormState = {
   errors?: {
@@ -21,42 +22,27 @@ export async function actualizarPerfil(
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const nombre = formData.get("nombre") as string;
-  const descripcion = formData.get("descripcion") as string;
-  const direccion = formData.get("direccion") as string;
-  const codigo_postal = formData.get("codigo_postal") as string;
-
-  const errors: FormState["errors"] = {};
-
-  if (!nombre || nombre.trim() === "") {
-    errors.nombre = ["El nombre del negocio es obligatorio"];
+  const parsed = perfilSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    return { errors: parsed.error.flatten().fieldErrors as FormState["errors"] };
   }
-  if (!direccion || direccion.trim() === "") {
-    errors.direccion = ["La dirección es obligatoria"];
-  }
-  if (!codigo_postal || codigo_postal.trim() === "") {
-    errors.codigo_postal = ["El código postal es obligatorio"];
-  }
-
-  if (Object.keys(errors).length > 0) {
-    return { errors };
-  }
+  const datos = parsed.data;
 
   try {
     await prisma.perfilVendedor.upsert({
       where: { clerk_user_id: userId },
       create: {
         clerk_user_id: userId,
-        nombre: nombre.trim(),
-        descripcion: descripcion?.trim() || null,
-        direccion: direccion.trim(),
-        codigo_postal: codigo_postal.trim(),
+        nombre: datos.nombre,
+        descripcion: datos.descripcion || null,
+        direccion: datos.direccion,
+        codigo_postal: datos.codigo_postal,
       },
       update: {
-        nombre: nombre.trim(),
-        descripcion: descripcion?.trim() || null,
-        direccion: direccion.trim(),
-        codigo_postal: codigo_postal.trim(),
+        nombre: datos.nombre,
+        descripcion: datos.descripcion || null,
+        direccion: datos.direccion,
+        codigo_postal: datos.codigo_postal,
       },
     });
   } catch {
