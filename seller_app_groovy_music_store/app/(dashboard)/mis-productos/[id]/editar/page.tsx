@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import ProductoForm from "@/components/ProductoForm";
 import { editarProducto, desactivarProducto } from "./actions";
+import BotonConfirmacion from "@/components/BotonConfirmacion";
 
 export default async function EditarProductoPage({
   params,
@@ -40,14 +41,16 @@ export default async function EditarProductoPage({
           imagenes: producto.imagenes,
         }}
       />
-      <form action={desactivarConId} className="mt-6">
-        <button
-          type="submit"
-          className="text-red-500 border border-red-500 px-4 py-2 rounded hover:bg-red-50"
-        >
-          Eliminar producto
-        </button>
-      </form>
+      <div className="mt-6">
+        <BotonConfirmacion
+          action={desactivarConId}
+          label="Eliminar producto"
+          titulo="Eliminar producto"
+          mensaje={`¿Seguro que querés eliminar "${producto.titulo}"? Dejará de aparecer en la tienda.`}
+          confirmLabel="Eliminar"
+          variant="danger"
+        />
+      </div>
     </div>
   );
 }

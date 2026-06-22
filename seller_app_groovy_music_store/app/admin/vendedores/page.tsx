@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import Paginacion from "@/components/Paginacion";
 
-const LIMITE = 5;
+const LIMITE = 4;
 
 export default async function AdminVendedoresPage({
   searchParams,

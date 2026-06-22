@@ -18,7 +18,7 @@ const colorEstado = {
   ENVIADO: "bg-green-100 text-green-800",
 };
 
-const LIMITE = 5;
+const LIMITE = 4;
 
 export default async function MisVentasPage({
   searchParams,
