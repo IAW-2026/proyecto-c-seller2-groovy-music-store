@@ -1,18 +1,35 @@
 import { prisma } from "@/lib/prisma";
 import { desactivarProductoAdmin, activarProductoAdmin } from "./actions";
+import Paginacion from "@/components/Paginacion";
 
-export default async function AdminProductosPage() {
-  const productos = await prisma.producto.findMany({
-    orderBy: { created_at: "desc" },
-    include: { vendedor: true },
-  });
+const LIMITE = 5;
+
+export default async function AdminProductosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ pagina?: string }>;
+}) {
+  const { pagina: paginaParam } = await searchParams;
+  const pagina = Number(paginaParam) || 1;
+
+  const [productos, total] = await Promise.all([
+    prisma.producto.findMany({
+      orderBy: { created_at: "desc" },
+      include: { vendedor: true },
+      skip: (pagina - 1) * LIMITE,
+      take: LIMITE,
+    }),
+    prisma.producto.count(),
+  ]);
+
+  const totalPaginas = Math.ceil(total / LIMITE);
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="font-cormorant text-4xl font-light">Todos los productos</h1>
         <p className="font-dm text-sm text-medium mt-1">
-          {productos.length} producto{productos.length !== 1 ? "s" : ""} en el sistema
+          {total} producto{total !== 1 ? "s" : ""} en el sistema
         </p>
       </div>
 
@@ -66,6 +83,8 @@ export default async function AdminProductosPage() {
           </div>
         ))}
       </div>
+
+      <Paginacion paginaActual={pagina} totalPaginas={totalPaginas} />
     </div>
   );
 }
