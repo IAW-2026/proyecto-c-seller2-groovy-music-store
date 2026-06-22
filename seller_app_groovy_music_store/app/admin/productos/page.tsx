@@ -1,8 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { desactivarProductoAdmin, activarProductoAdmin } from "./actions";
 import Paginacion from "@/components/Paginacion";
+import BotonConfirmacion from "@/components/BotonConfirmacion";
 
-const LIMITE = 5;
+const LIMITE = 4;
 
 export default async function AdminProductosPage({
   searchParams,
@@ -62,23 +63,23 @@ export default async function AdminProductosPage({
             </div>
 
             {producto.activo ? (
-              <form action={desactivarProductoAdmin.bind(null, producto.id)}>
-                <button
-                  type="submit"
-                  className="font-dm text-sm text-primary border border-primary/40 px-4 py-1.5 rounded-lg hover:bg-primary/5 transition-colors"
-                >
-                  Desactivar
-                </button>
-              </form>
+              <BotonConfirmacion
+                action={desactivarProductoAdmin.bind(null, producto.id)}
+                label="Desactivar"
+                titulo="Desactivar producto"
+                mensaje={`¿Seguro que querés desactivar "${producto.titulo}"? Dejará de aparecer en el catálogo, pero podés reactivarlo después.`}
+                confirmLabel="Desactivar"
+                variant="primary"
+              />
             ) : (
-              <form action={activarProductoAdmin.bind(null, producto.id)}>
-                <button
-                  type="submit"
-                  className="font-dm text-sm text-green-700 border border-green-600/40 px-4 py-1.5 rounded-lg hover:bg-green-50 transition-colors"
-                >
-                  Activar
-                </button>
-              </form>
+              <BotonConfirmacion
+                action={activarProductoAdmin.bind(null, producto.id)}
+                label="Activar"
+                titulo="Activar producto"
+                mensaje={`¿Querés volver a activar "${producto.titulo}"? Volverá a aparecer en el catálogo.`}
+                confirmLabel="Activar"
+                variant="success"
+              />
             )}
           </div>
         ))}
