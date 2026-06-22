@@ -16,20 +16,20 @@ export default async function AdminPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
+        <div className="bg-card border border-border rounded-xl p-6" style={{ flex: "1 1 200px" }}>
           <p className="font-cormorant text-5xl font-light text-foreground">
             {totalProductos}
           </p>
           <p className="font-dm text-sm text-medium mt-2">Productos activos</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-border rounded-xl p-6" style={{ flex: "1 1 200px" }}>
           <p className="font-cormorant text-5xl font-light text-foreground">
             {totalVentas}
           </p>
           <p className="font-dm text-sm text-medium mt-2">Ventas totales</p>
         </div>
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-border rounded-xl p-6" style={{ flex: "1 1 200px" }}>
           <p className="font-cormorant text-5xl font-light text-foreground">
             {totalVendedores}
           </p>
