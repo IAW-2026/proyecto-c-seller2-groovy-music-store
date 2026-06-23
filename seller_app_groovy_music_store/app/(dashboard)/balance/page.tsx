@@ -1,5 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
+import { firmarTokenPara } from "@/lib/jwt";
 
 async function consultarBalance(sellerId: string) {
   const PAYMENTS_APP_URL = process.env.PAYMENTS_APP_URL;
@@ -11,9 +12,14 @@ async function consultarBalance(sellerId: string) {
     };
   }
 
+  const token = await firmarTokenPara(process.env.PAYMENTS_JWT_SECRET);
+
   const res = await fetch(
     `${PAYMENTS_APP_URL}/api/payouts?sellerId=${sellerId}`,
-    { cache: "no-store" }
+    {
+      cache: "no-store",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }
   );
   return res.json();
 }
@@ -23,7 +29,7 @@ export default async function BalancePage() {
   if (!userId) redirect("/sign-in");
 
   const data = await consultarBalance(userId);
-  const balanceRetenido   = data.balance_retenido   ?? 0;
+  const balanceRetenido = data.balance_retenido ?? 0;
   const balanceAcreditado = data.balance_acreditado ?? 0;
 
   return (
@@ -37,8 +43,8 @@ export default async function BalancePage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <div className="bg-card border border-border rounded-xl p-6">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }} className="mb-8">
+        <div className="bg-card border border-border rounded-xl p-6" style={{ flex: "1 1 240px" }}>
           <p className="font-dm text-sm text-medium">Total acreditado</p>
           <p className="font-cormorant text-5xl font-light text-foreground mt-1">
             ${balanceAcreditado.toLocaleString()}
@@ -48,7 +54,7 @@ export default async function BalancePage() {
           </span>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-6">
+        <div className="bg-card border border-border rounded-xl p-6" style={{ flex: "1 1 240px" }}>
           <p className="font-dm text-sm text-medium">Total retenido</p>
           <p className="font-cormorant text-5xl font-light text-foreground mt-1">
             ${balanceRetenido.toLocaleString()}
