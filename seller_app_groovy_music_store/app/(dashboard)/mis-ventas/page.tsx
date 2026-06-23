@@ -18,7 +18,7 @@ const colorEstado = {
   ENVIADO: "bg-green-100 text-green-800",
 };
 
-const LIMITE = 4;
+const LIMITE = 5;
 
 export default async function MisVentasPage({
   searchParams,
@@ -31,12 +31,12 @@ export default async function MisVentasPage({
   const { pagina: paginaParam } = await searchParams;
   const pagina = Number(paginaParam) || 1;
 
-  const where = { producto: { seller_id: userId } };
+  const where = { seller_id: userId };
 
   const [ventas, total] = await Promise.all([
     prisma.venta.findMany({
       where,
-      include: { producto: true },
+      include: { items: { include: { producto: true } } },
       orderBy: { created_at: "desc" },
       skip: (pagina - 1) * LIMITE,
       take: LIMITE,
@@ -57,9 +57,7 @@ export default async function MisVentasPage({
 
       {total === 0 ? (
         <div className="bg-card border border-border rounded-xl p-12 text-center">
-          <p className="font-cormorant text-2xl text-medium">
-            No tenés ventas todavía
-          </p>
+          <p className="font-cormorant text-2xl text-medium">No tenés ventas todavía</p>
           <p className="font-dm text-sm text-medium mt-2">
             Las ventas aparecen cuando un comprador confirma una orden
           </p>
@@ -70,19 +68,23 @@ export default async function MisVentasPage({
             {ventas.map((venta) => (
               <div
                 key={venta.id}
-                className="bg-card border border-border rounded-xl p-5 flex justify-between items-center"
+                className="bg-card border border-border rounded-xl p-5 flex justify-between items-start gap-4"
               >
-                <div>
-                  <h2 className="font-syne font-semibold text-foreground">
-                    {venta.producto.titulo}
-                  </h2>
-                  <p className="font-dm text-sm text-medium mt-0.5">
-                    Cantidad: {venta.cantidad} · ${venta.precio_unitario.toString()} c/u
-                  </p>
-                  <p className="font-dm text-xs text-medium mt-0.5">
-                    Orden: {venta.order_id_externo}
-                  </p>
-                  <span className={`inline-block mt-2 font-dm text-xs px-2.5 py-1 rounded-full font-medium ${colorEstado[venta.estado_preparacion]}`}>
+                <div style={{ minWidth: 0 }}>
+                  <p className="font-dm text-xs text-medium">Orden: {venta.order_id_externo}</p>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {venta.items.map((item) => (
+                      <div key={item.id}>
+                        <h2 className="font-syne font-semibold text-foreground">
+                          {item.producto.titulo}
+                        </h2>
+                        <p className="font-dm text-sm text-medium">
+                          Cantidad: {item.cantidad} · ${item.precio_unit.toString()} c/u
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  <span className={`inline-block mt-3 font-dm text-xs px-2.5 py-1 rounded-full font-medium ${colorEstado[venta.estado_preparacion]}`}>
                     {etiquetaEstado[venta.estado_preparacion]}
                   </span>
                 </div>
@@ -91,7 +93,7 @@ export default async function MisVentasPage({
                   <form action={avanzarEstado.bind(null, venta.id)}>
                     <button
                       type="submit"
-                      className="font-dm text-sm border border-border px-4 py-2 rounded-lg hover:bg-background transition-colors"
+                      className="font-dm text-sm border border-border px-4 py-2 rounded-lg hover:bg-background transition-colors whitespace-nowrap"
                     >
                       Avanzar →
                     </button>

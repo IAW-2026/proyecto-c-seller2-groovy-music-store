@@ -19,6 +19,7 @@ async function main() {
 
   await prisma.itemReserva.deleteMany();
   await prisma.reserva.deleteMany();
+  await prisma.itemVenta.deleteMany();
   await prisma.venta.deleteMany();
   await prisma.producto.deleteMany();
   await prisma.perfilVendedor.deleteMany();
@@ -179,42 +180,47 @@ async function main() {
 
   await Promise.all([
     // PENDIENTE
-    prisma.venta.create({ data: { product_id: darkSide.id,       order_id_externo: "order-demo-001", buyer_id_externo: BUYER_A, cantidad: 1, precio_unitario: darkSide.precio,       estado_preparacion: "PENDIENTE" }}),
-    prisma.venta.create({ data: { product_id: nevermind.id,      order_id_externo: "order-demo-002", buyer_id_externo: BUYER_B, cantidad: 2, precio_unitario: nevermind.precio,      estado_preparacion: "PENDIENTE" }}),
-    prisma.venta.create({ data: { product_id: folkloreTSwift.id, order_id_externo: "order-demo-003", buyer_id_externo: BUYER_C, cantidad: 1, precio_unitario: folkloreTSwift.precio, estado_preparacion: "PENDIENTE" }}),
-    prisma.venta.create({ data: { product_id: ledzep.id,         order_id_externo: "order-demo-004", buyer_id_externo: BUYER_D, cantidad: 1, precio_unitario: ledzep.precio,         estado_preparacion: "PENDIENTE" }}),
-    prisma.venta.create({ data: { product_id: eltonJohn.id,      order_id_externo: "order-demo-005", buyer_id_externo: BUYER_A, cantidad: 1, precio_unitario: eltonJohn.precio,      estado_preparacion: "PENDIENTE" }}),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-001", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: darkSide.id,       cantidad: 1, precio_unit: darkSide.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-002", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: nevermind.id,      cantidad: 2, precio_unit: nevermind.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-003", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: folkloreTSwift.id, cantidad: 1, precio_unit: folkloreTSwift.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-004", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: ledzep.id,         cantidad: 1, precio_unit: ledzep.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-005", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: eltonJohn.id,      cantidad: 1, precio_unit: eltonJohn.precio }] } } }),
 
     // PREPARANDO
-    prisma.venta.create({ data: { product_id: kindOfBlue.id,     order_id_externo: "order-demo-006", buyer_id_externo: BUYER_B, cantidad: 1, precio_unitario: kindOfBlue.precio,     estado_preparacion: "PREPARANDO" }}),
-    prisma.venta.create({ data: { product_id: thriller.id,       order_id_externo: "order-demo-007", buyer_id_externo: BUYER_C, cantidad: 1, precio_unitario: thriller.precio,       estado_preparacion: "PREPARANDO" }}),
-    prisma.venta.create({ data: { product_id: okComputer.id,     order_id_externo: "order-demo-008", buyer_id_externo: BUYER_D, cantidad: 1, precio_unitario: okComputer.precio,     estado_preparacion: "PREPARANDO" }}),
-    prisma.venta.create({ data: { product_id: batOutOfHell.id,   order_id_externo: "order-demo-009", buyer_id_externo: BUYER_A, cantidad: 2, precio_unitario: batOutOfHell.precio,   estado_preparacion: "PREPARANDO" }}),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-006", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: kindOfBlue.id,     cantidad: 1, precio_unit: kindOfBlue.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-007", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: thriller.id,       cantidad: 1, precio_unit: thriller.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-008", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: okComputer.id,     cantidad: 1, precio_unit: okComputer.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-009", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: batOutOfHell.id,   cantidad: 2, precio_unit: batOutOfHell.precio }] } } }),
 
     // LISTO_PARA_ENVIO
-    prisma.venta.create({ data: { product_id: grasaCapitales.id, order_id_externo: "order-demo-010", buyer_id_externo: BUYER_B, cantidad: 1, precio_unitario: grasaCapitales.precio, estado_preparacion: "LISTO_PARA_ENVIO" }}),
-    prisma.venta.create({ data: { product_id: obrasPiazzolla.id, order_id_externo: "order-demo-011", buyer_id_externo: BUYER_C, cantidad: 1, precio_unitario: obrasPiazzolla.precio, estado_preparacion: "LISTO_PARA_ENVIO" }}),
-    prisma.venta.create({ data: { product_id: tapestry.id,       order_id_externo: "order-demo-012", buyer_id_externo: BUYER_D, cantidad: 1, precio_unitario: tapestry.precio,       estado_preparacion: "LISTO_PARA_ENVIO" }}),
-    prisma.venta.create({ data: { product_id: unplugged.id,      order_id_externo: "order-demo-013", buyer_id_externo: BUYER_A, cantidad: 1, precio_unitario: unplugged.precio,      estado_preparacion: "LISTO_PARA_ENVIO" }}),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-010", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: grasaCapitales.id, cantidad: 1, precio_unit: grasaCapitales.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-011", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: obrasPiazzolla.id, cantidad: 1, precio_unit: obrasPiazzolla.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-012", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: tapestry.id,       cantidad: 1, precio_unit: tapestry.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-013", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: unplugged.id,      cantidad: 1, precio_unit: unplugged.precio }] } } }),
 
     // ENVIADO
-    prisma.venta.create({ data: { product_id: honrarLaVida.id,   order_id_externo: "order-demo-014", buyer_id_externo: BUYER_B, cantidad: 1, precio_unitario: honrarLaVida.precio,   estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: rumours.id,        order_id_externo: "order-demo-015", buyer_id_externo: BUYER_C, cantidad: 1, precio_unitario: rumours.precio,        estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: fito.id,           order_id_externo: "order-demo-016", buyer_id_externo: BUYER_D, cantidad: 2, precio_unitario: fito.precio,           estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: cafeMaestros.id,   order_id_externo: "order-demo-017", buyer_id_externo: BUYER_A, cantidad: 1, precio_unitario: cafeMaestros.precio,   estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: lovesupreme.id,    order_id_externo: "order-demo-018", buyer_id_externo: BUYER_B, cantidad: 1, precio_unitario: lovesupreme.precio,    estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: bornUSA.id,        order_id_externo: "order-demo-019", buyer_id_externo: BUYER_C, cantidad: 2, precio_unitario: bornUSA.precio,        estado_preparacion: "ENVIADO" }}),
-    prisma.venta.create({ data: { product_id: charlyVivo.id,     order_id_externo: "order-demo-020", buyer_id_externo: BUYER_D, cantidad: 1, precio_unitario: charlyVivo.precio,     estado_preparacion: "ENVIADO" }}),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-014", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: honrarLaVida.id,   cantidad: 1, precio_unit: honrarLaVida.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-015", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: rumours.id,        cantidad: 1, precio_unit: rumours.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-016", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: fito.id,           cantidad: 2, precio_unit: fito.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-017", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: cafeMaestros.id,   cantidad: 1, precio_unit: cafeMaestros.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-018", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: lovesupreme.id,    cantidad: 1, precio_unit: lovesupreme.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-019", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: bornUSA.id,        cantidad: 2, precio_unit: bornUSA.precio }] } } }),
+    prisma.venta.create({ data: { order_id_externo: "order-demo-020", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: charlyVivo.id,     cantidad: 1, precio_unit: charlyVivo.precio }] } } }),
   ]);
 
   console.log("✓ 20 ventas creadas (5 pendientes, 4 preparando, 4 listas, 7 enviadas)");
 
-  const [totalProductos, totalActivos, totalVentas, totalIngresos] = await Promise.all([
+  const [totalProductos, totalActivos, totalVentas, itemsVendidos] = await Promise.all([
     prisma.producto.count(),
     prisma.producto.count({ where: { activo: true } }),
     prisma.venta.count(),
-    prisma.venta.aggregate({ _sum: { precio_unitario: true } }),
+    prisma.itemVenta.findMany({ select: { precio_unit: true, cantidad: true } }),
   ]);
+
+  const totalIngresos = itemsVendidos.reduce(
+    (acc, i) => acc + Number(i.precio_unit) * i.cantidad,
+    0
+  );
 
   console.log("");
   console.log("📊 Resumen del seed:");
@@ -222,8 +228,7 @@ async function main() {
   console.log(`   Admin:             sin perfil vendedor (${ADMIN_ID})`);
   console.log(`   Productos totales: ${totalProductos} (${totalActivos} activos, 2 desactivados)`);
   console.log(`   Ventas:            ${totalVentas}`);
-  console.log(`   Ingresos totales:  $${Number(totalIngresos._sum.precio_unitario).toLocaleString("es-AR")}`);
-  console.log("");
+  console.log(`   Ingresos totales:  $${totalIngresos.toLocaleString("es-AR")}`);  console.log("");
   console.log("✅ Seed completado. Credenciales de acceso:");
   console.log("   /dashboard  → seller+clerktest@iaw.com      (contraseña: iawuser#)");
   console.log("   /admin      → admin_seller+clerktest@iaw.com (contraseña: iawuser#)");
