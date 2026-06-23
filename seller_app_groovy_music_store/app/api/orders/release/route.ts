@@ -1,19 +1,16 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { verificarJWTEntrante } from "@/lib/jwt";
 
 export async function POST(request: NextRequest) {
-  // Auth: acepta API key (Etapa 2) o JWT (Etapa 3)
-  const apiKey = request.headers.get("X-API-Key");
-  const authHeader = request.headers.get("Authorization");
-
-  const apiKeyValida = apiKey === process.env.BUYER_APP_API_KEY;
-  const tieneAuth = authHeader?.startsWith("Bearer ");
-
-  if (!apiKeyValida && !tieneAuth) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  
+  const autorizado = await verificarJWTEntrante(request);
+  if (!autorizado) {
+    return NextResponse.json(
+      { error: "unauthorized", mensaje: "Token ausente o inválido" },
+      { status: 401 }
+    );
   }
-
-
   const body = await request.json();
   const { order_id, items } = body;
 

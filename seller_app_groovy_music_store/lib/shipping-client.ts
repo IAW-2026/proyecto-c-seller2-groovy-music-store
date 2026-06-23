@@ -1,3 +1,5 @@
+import { firmarTokenPara } from "./jwt";
+
 export interface Direccion {
   calle?: string;
   ciudad?: string;
@@ -10,8 +12,8 @@ interface CrearEnvioInput {
   order_id: string;
   seller_id: string;
   buyer_id: string;
-  direccionDestino: Direccion; // del comprador (formato de la Buyer App)
-  direccionOrigen: Direccion;  // del vendedor (de nuestra base)
+  direccionDestino: Direccion;
+  direccionOrigen: Direccion;
 }
 
 interface CrearEnvioResponse {
@@ -37,9 +39,14 @@ export async function crearEnvioEnShipping(
   }
 
   try {
+    const token = await firmarTokenPara(process.env.SHIPPING_JWT_SECRET);
+
     const res = await fetch(`${SHIPPING_APP_URL}/api/shipments`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
       body: JSON.stringify(input),
     });
 
