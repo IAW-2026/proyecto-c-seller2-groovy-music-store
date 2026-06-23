@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { order_id, buyer_id, seller_id, items } = body;
+  const { order_id, buyer_id, seller_id, items, direccion_envio } = body;
 
   if (!order_id || !buyer_id || !seller_id || !items?.length) {
     return NextResponse.json({ error: "Faltan campos requeridos" }, { status: 400 });
@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
         order_id_externo: order_id,
         buyer_id_externo: buyer_id,
         seller_id,
+        direccion_envio: direccion_envio ?? undefined,
         estado_preparacion: "PENDIENTE",
         items: {
           create: items.map((item: {

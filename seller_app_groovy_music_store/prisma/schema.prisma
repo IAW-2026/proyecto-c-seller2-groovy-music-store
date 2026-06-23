@@ -46,6 +46,7 @@ model Venta {
   seller_id          String
   estado_preparacion EstadoPreparacion @default(PENDIENTE)
   envio_id_externo   String?
+  direccion_envio    Json?
   created_at         DateTime          @default(now())
   updated_at         DateTime          @updatedAt
   items              ItemVenta[]
