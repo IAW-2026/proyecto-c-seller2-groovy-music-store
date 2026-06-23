@@ -7,6 +7,7 @@ type FormState = {
   errors?: {
     nombre?: string[];
     direccion?: string[];
+    ciudad?: string[];
     codigo_postal?: string[];
   };
   message?: string;
@@ -18,6 +19,8 @@ type Props = {
     nombre: string;
     descripcion: string;
     direccion: string;
+    ciudad: string;
+    provincia: string;
     codigo_postal: string;
   };
 };
@@ -73,6 +76,33 @@ export default function PerfilForm({ initialData }: Props) {
         {state.errors?.direccion && (
           <p className="font-dm text-sm text-primary mt-1">{state.errors.direccion[0]}</p>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="ciudad" className="font-dm text-sm font-medium text-foreground block mb-1">
+          Ciudad <span className="text-primary">*</span>
+        </label>
+        <input
+          id="ciudad"
+          name="ciudad"
+          defaultValue={initialData.ciudad}
+          className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-card focus:outline-none focus:border-foreground transition-colors"
+        />
+        {state.errors?.ciudad && (
+          <p className="font-dm text-sm text-primary mt-1">{state.errors.ciudad[0]}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="provincia" className="font-dm text-sm font-medium text-foreground block mb-1">
+          Provincia <span className="text-medium text-xs">(opcional)</span>
+        </label>
+        <input
+          id="provincia"
+          name="provincia"
+          defaultValue={initialData.provincia}
+          className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-card focus:outline-none focus:border-foreground transition-colors"
+        />
       </div>
 
       <div>

@@ -9,9 +9,7 @@ export const productoSchema = z.object({
   genero: z.string().trim(),
   formato: z.enum(["VINILO", "CD", "CASSETTE", "MERCHANDISE", "OTRO"]),
   condicion: z.enum(["NUEVO", "COMO_NUEVO", "BUENO", "ACEPTABLE"]),
-  precio: z.coerce
-    .number()
-    .positive("El precio debe ser un número mayor a 0"),
+  precio: z.coerce.number().positive("El precio debe ser un número mayor a 0"),
   stock: z.coerce
     .number()
     .int("El stock debe ser un número entero")
@@ -22,5 +20,7 @@ export const perfilSchema = z.object({
   nombre: z.string().trim().min(1, "El nombre del negocio es obligatorio"),
   descripcion: z.string().trim().optional(),
   direccion: z.string().trim().min(1, "La dirección es obligatoria"),
+  ciudad: z.string().trim().min(1, "La ciudad es obligatoria"),
+  provincia: z.string().trim().optional(),
   codigo_postal: z.string().trim().min(1, "El código postal es obligatorio"),
 });

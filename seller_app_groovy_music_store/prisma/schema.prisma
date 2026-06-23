@@ -13,6 +13,8 @@ model PerfilVendedor {
   descripcion   String?
   nombre        String?
   direccion     String?
+  ciudad        String?
+  provincia     String?
   codigo_postal String?
   created_at    DateTime   @default(now())
   updated_at    DateTime   @updatedAt
