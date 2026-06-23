@@ -7,6 +7,7 @@ type FormState = {
   errors?: {
     nombre?: string[];
     direccion?: string[];
+    ciudad?: string[];
     codigo_postal?: string[];
   };
   message?: string;
@@ -58,11 +59,38 @@ export default function OnboardingForm() {
           id="direccion"
           name="direccion"
           className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-background focus:outline-none focus:border-foreground transition-colors"
-          placeholder="Ej: Av. Corrientes 1234, CABA"
+          placeholder="Ej: Av. Corrientes 1234"
         />
         {state.errors?.direccion && (
           <p className="font-dm text-sm text-primary mt-1">{state.errors.direccion[0]}</p>
         )}
+      </div>
+
+      <div>
+        <label htmlFor="ciudad" className="font-dm text-sm font-medium text-foreground block mb-1">
+          Ciudad <span className="text-primary">*</span>
+        </label>
+        <input
+          id="ciudad"
+          name="ciudad"
+          className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-background focus:outline-none focus:border-foreground transition-colors"
+          placeholder="Ej: Buenos Aires"
+        />
+        {state.errors?.ciudad && (
+          <p className="font-dm text-sm text-primary mt-1">{state.errors.ciudad[0]}</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="provincia" className="font-dm text-sm font-medium text-foreground block mb-1">
+          Provincia <span className="text-medium text-xs">(opcional)</span>
+        </label>
+        <input
+          id="provincia"
+          name="provincia"
+          className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-background focus:outline-none focus:border-foreground transition-colors"
+          placeholder="Ej: Buenos Aires"
+        />
       </div>
 
       <div>

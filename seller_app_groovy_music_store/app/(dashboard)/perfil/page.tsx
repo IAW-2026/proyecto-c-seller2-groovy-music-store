@@ -7,12 +7,9 @@ export default async function PerfilPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const [perfil, user] = await Promise.all([
-    prisma.perfilVendedor.findUnique({
-      where: { clerk_user_id: userId },
-    }),
-    currentUser(),
-  ]);
+  const perfil = await prisma.perfilVendedor.findUnique({
+    where: { clerk_user_id: userId },
+  });
 
   return (
     <div>
@@ -29,6 +26,8 @@ export default async function PerfilPage() {
             nombre: perfil?.nombre ?? "",
             descripcion: perfil?.descripcion ?? "",
             direccion: perfil?.direccion ?? "",
+            ciudad: perfil?.ciudad ?? "",
+            provincia: perfil?.provincia ?? "",
             codigo_postal: perfil?.codigo_postal ?? "",
           }}
         />

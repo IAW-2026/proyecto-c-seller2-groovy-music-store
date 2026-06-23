@@ -32,6 +32,8 @@ async function main() {
       nombre: "Groovy Records",
       descripcion: "Disquería especializada en vinilos, CDs y cassettes. Rock, jazz, folklore y más.",
       direccion: "Av. Corrientes 1234",
+      ciudad: "Buenos Aires",
+      provincia: "Buenos Aires",
       codigo_postal: "1043",
     },
   });
