@@ -35,10 +35,12 @@ export async function avanzarEstado(ventaId: string) {
     const perfil = await prisma.perfilVendedor.findUnique({
       where: { clerk_user_id: venta.seller_id },
     });
+    
     const direccionOrigen: Direccion = {
       calle: perfil?.direccion ?? undefined,
+      ciudad: perfil?.ciudad ?? undefined,
+      provincia: perfil?.provincia ?? undefined,
       cod_postal: perfil?.codigo_postal ?? undefined,
-      // TODO (feature 3): ciudad/provincia/pais cuando se agreguen al perfil
       pais: "Argentina",
     };
 

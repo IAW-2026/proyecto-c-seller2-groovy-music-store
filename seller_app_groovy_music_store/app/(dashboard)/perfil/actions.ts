@@ -9,6 +9,7 @@ type FormState = {
   errors?: {
     nombre?: string[];
     direccion?: string[];
+    ciudad?: string[];
     codigo_postal?: string[];
   };
   message?: string;
@@ -36,12 +37,16 @@ export async function actualizarPerfil(
         nombre: datos.nombre,
         descripcion: datos.descripcion || null,
         direccion: datos.direccion,
+        ciudad: datos.ciudad,
+        provincia: datos.provincia || null,
         codigo_postal: datos.codigo_postal,
       },
       update: {
         nombre: datos.nombre,
         descripcion: datos.descripcion || null,
         direccion: datos.direccion,
+        ciudad: datos.ciudad,
+        provincia: datos.provincia || null,
         codigo_postal: datos.codigo_postal,
       },
     });
