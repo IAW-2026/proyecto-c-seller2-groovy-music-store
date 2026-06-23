@@ -35,22 +35,32 @@ model Producto {
   created_at  DateTime   @default(now())
   updated_at  DateTime   @updatedAt
   vendedor    PerfilVendedor @relation(fields: [seller_id], references: [clerk_user_id])
-  ventas      Venta[]
+  items_venta ItemVenta[]
   reservas    ItemReserva[]
 }
 
 model Venta {
   id                 String            @id @default(uuid())
-  product_id         String
-  order_id_externo   String
+  order_id_externo   String            @unique
   buyer_id_externo   String
-  cantidad           Int               @default(1)
-  precio_unitario    Decimal
+  seller_id          String
   estado_preparacion EstadoPreparacion @default(PENDIENTE)
   envio_id_externo   String?
   created_at         DateTime          @default(now())
   updated_at         DateTime          @updatedAt
-  producto           Producto          @relation(fields: [product_id], references: [id])
+  items              ItemVenta[]
+}
+
+model ItemVenta {
+  id          String   @id @default(uuid())
+  venta_id    String
+  product_id  String
+  cantidad    Int
+  precio_unit Decimal
+  created_at  DateTime @default(now())
+
+  venta       Venta    @relation(fields: [venta_id], references: [id])
+  producto    Producto @relation(fields: [product_id], references: [id])
 }
 
 model Reserva {
