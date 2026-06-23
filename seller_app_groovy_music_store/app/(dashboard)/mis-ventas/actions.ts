@@ -1,6 +1,6 @@
 "use server";
 
-import { crearEnvioEnShipping } from "@/lib/shipping-client";
+import { crearEnvioEnShipping, type Direccion } from "@/lib/shipping-client";
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -28,16 +28,26 @@ export async function avanzarEstado(ventaId: string) {
   });
 
   if (siguiente === "ENVIADO") {
+    // Destino: la dirección del comprador, que llegó en /confirm y guardamos en la venta
+    const direccionDestino = (venta.direccion_envio as Direccion | null) ?? {};
+
+    // Origen: la dirección del vendedor, de nuestra base
+    const perfil = await prisma.perfilVendedor.findUnique({
+      where: { clerk_user_id: venta.seller_id },
+    });
+    const direccionOrigen: Direccion = {
+      calle: perfil?.direccion ?? undefined,
+      cod_postal: perfil?.codigo_postal ?? undefined,
+      // TODO (feature 3): ciudad/provincia/pais cuando se agreguen al perfil
+      pais: "Argentina",
+    };
+
     const envioData = await crearEnvioEnShipping({
       order_id: venta.order_id_externo,
       seller_id: venta.seller_id,
       buyer_id: venta.buyer_id_externo,
-      direccionDestino: {
-        // TODO (feature 2): dirección real del buyer + del seller
-        ciudad: "Buenos Aires",
-        provincia: "Buenos Aires",
-        cod_postal: "1000",
-      },
+      direccionDestino,
+      direccionOrigen,
     });
 
     if (envioData?.envioId) {
