@@ -8,6 +8,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/products(.*)",
   "/api/orders(.*)",
   "/api/analytics(.*)",
+  "/api/admin(.*)",
+  "/api/sellers(.*)",
 ]);
 
 export default clerkMiddleware((auth, request) => {
