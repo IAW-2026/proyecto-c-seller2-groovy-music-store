@@ -7,11 +7,13 @@ export async function GET(request: NextRequest) {
   const busqueda = searchParams.get("busqueda") ?? undefined;
   const genero = searchParams.get("genero") ?? undefined;
   const formato = searchParams.get("formato") ?? undefined;
+  const sellerId = searchParams.get("sellerId") ?? undefined;
   const pagina = Number(searchParams.get("pagina")) || 1;
   const limite = Number(searchParams.get("limite")) || 20;
 
   const where = {
     activo: true,
+    seller_id: sellerId ?? undefined,
     titulo: busqueda
       ? { contains: busqueda, mode: "insensitive" as const }
       : undefined,
