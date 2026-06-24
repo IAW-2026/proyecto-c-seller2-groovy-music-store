@@ -24,3 +24,10 @@ export const perfilSchema = z.object({
   provincia: z.string().trim().optional(),
   codigo_postal: z.string().trim().min(1, "El código postal es obligatorio"),
 });
+
+// Etapa 3 — Control Plane: edición/suspensión parcial de productos desde el admin global.
+// Todos los campos son opcionales (PATCH = actualización parcial) y se suma `activo`
+// para poder suspender/reactivar en el mismo endpoint.
+export const productoAdminPatchSchema = productoSchema.partial().extend({
+  activo: z.boolean().optional(),
+});
