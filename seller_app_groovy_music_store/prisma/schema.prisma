@@ -89,6 +89,16 @@ model ItemReserva {
   producto    Producto @relation(fields: [product_id], references: [id])
 }
 
+model RegistroBalance {
+  id                 String   @id @default(uuid())
+  seller_id          String
+  balance_retenido   Decimal
+  balance_acreditado Decimal
+  created_at         DateTime @default(now())
+
+  @@index([seller_id, created_at])
+}
+
 enum EstadoReserva {
   ACTIVA
   CONFIRMADA
