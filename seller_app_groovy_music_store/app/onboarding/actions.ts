@@ -22,7 +22,7 @@ export async function completarPerfil(
 ): Promise<FormState> {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
-  if (esAdmin(userId)) redirect("/admin");
+  if (await esAdmin(userId)) redirect("/admin");
 
   const parsed = perfilSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
