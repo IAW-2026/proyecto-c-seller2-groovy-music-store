@@ -2,11 +2,13 @@
 
 import { useActionState, useState } from "react";
 import ImageUploader from "@/components/ImageUploader";
+import { GENEROS } from "@/lib/validations";
 
 type FormState = {
   errors?: {
     titulo?: string[];
     artista?: string[];
+    genero?: string[];
     precio?: string[];
     stock?: string[];
   };
@@ -33,7 +35,6 @@ const initialState: FormState = {};
 export default function ProductoForm({ action, initialData }: Props) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const [imagenes, setImagenes] = useState<string[]>(initialData?.imagenes ?? []);
-
 
   return (
     <form action={formAction} className="flex flex-col gap-5 max-w-lg">
@@ -91,10 +92,22 @@ export default function ProductoForm({ action, initialData }: Props) {
         <input
           id="genero"
           name="genero"
+          list="generos-lista"
+          autoComplete="off"
           defaultValue={initialData?.genero}
           className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-card focus:outline-none focus:border-foreground transition-colors"
-          placeholder="Ej: Rock, Jazz, Cumbia"
+          placeholder="Buscá o elegí un género"
         />
+        <datalist id="generos-lista">
+          {GENEROS.map((g) => (
+            <option key={g} value={g} />
+          ))}
+        </datalist>
+        {state.errors?.genero && (
+          <p className="font-dm text-sm text-primary mt-1">
+            Seleccioná un género válido de la lista.
+          </p>
+        )}
       </div>
 
       <div>
@@ -170,7 +183,7 @@ export default function ProductoForm({ action, initialData }: Props) {
             type="number"
             defaultValue={initialData?.stock}
             className="font-dm w-full border border-border rounded-lg px-4 py-2.5 bg-card focus:outline-none focus:border-foreground transition-colors"
-            placeholder="Ej: 10"
+            placeholder="Ej: 3"
           />
           {state.errors?.stock && (
             <p className="font-dm text-sm text-primary mt-1">{state.errors.stock[0]}</p>
