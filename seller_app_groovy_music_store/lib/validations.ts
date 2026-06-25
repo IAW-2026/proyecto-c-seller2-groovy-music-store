@@ -1,12 +1,33 @@
 import { z } from "zod";
 
+export const GENEROS = [
+  "Blues",
+  "Clásica",
+  "Country",
+  "Cumbia",
+  "Electrónica",
+  "Folklore",
+  "Funk",
+  "Hip Hop",
+  "Jazz",
+  "Metal",
+  "Pop",
+  "Punk",
+  "Reggae",
+  "Reggaetón",
+  "Rock",
+  "Rock Nacional",
+  "Salsa",
+  "Soul",
+  "Tango",
+  "Trap",
+] as const;
+
 export const productoSchema = z.object({
   titulo: z.string().trim().min(1, "El título es obligatorio"),
   artista: z.string().trim().min(1, "El artista es obligatorio"),
   descripcion: z.string().trim().optional(),
-  // TODO Etapa 3: cuando el equipo defina la lista de géneros permitidos,
-  // reemplazar por z.enum([...]) para validar contra esa lista.
-  genero: z.string().trim(),
+  genero: z.enum(GENEROS),
   formato: z.enum(["VINILO", "CD", "CASSETTE", "MERCHANDISE", "OTRO"]),
   condicion: z.enum(["NUEVO", "COMO_NUEVO", "BUENO", "ACEPTABLE"]),
   precio: z.coerce.number().positive("El precio debe ser un número mayor a 0"),
