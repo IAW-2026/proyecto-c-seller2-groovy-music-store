@@ -8,7 +8,7 @@ export default async function OnboardingPage() {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  if (esAdmin(userId)) redirect("/admin");
+  if (await esAdmin(userId)) redirect("/admin");
 
   // Si ya tiene perfil completo, redirigir al dashboard
   const perfil = await prisma.perfilVendedor.findUnique({
