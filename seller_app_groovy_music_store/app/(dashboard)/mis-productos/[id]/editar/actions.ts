@@ -9,6 +9,7 @@ type FormState = {
   errors?: {
     titulo?: string[];
     artista?: string[];
+    genero?: string[]; 
     precio?: string[];
     stock?: string[];
   };
