@@ -6,7 +6,7 @@ import { esAdmin } from "@/lib/admin";
 export default async function Home() {
   const { userId } = await auth();
   if (userId) {
-    if (esAdmin(userId)) redirect("/admin");
+    if (await esAdmin(userId)) redirect("/admin");
     redirect("/dashboard");
   }
 
