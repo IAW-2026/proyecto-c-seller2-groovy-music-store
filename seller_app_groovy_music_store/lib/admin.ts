@@ -16,7 +16,7 @@ export async function esAdmin(userId: string): Promise<boolean> {
   try {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
-    const roles = user.publicMetadata?.role as string[] | undefined;
+    const roles = user.publicMetadata?.roles as string[] | undefined;
     return Array.isArray(roles) && roles.includes(ADMIN_ROLE);
   } catch (error) {
     console.error("[admin] Error al consultar metadata de Clerk:", error);
