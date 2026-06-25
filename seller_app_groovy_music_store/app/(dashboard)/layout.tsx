@@ -15,7 +15,7 @@ export default async function DashboardLayout({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  if (esAdmin(userId)) redirect("/admin");
+  if (await esAdmin(userId)) redirect("/admin");
 
   const [perfil, user] = await Promise.all([
     prisma.perfilVendedor.findUnique({
