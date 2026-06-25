@@ -1,7 +1,7 @@
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
-const ADMIN_ROLE = "admin";
+const ADMIN_ROLES = ["admin", "super_admin"];
 
 // Fallback temporal: mientras se confirma que el metadata de Clerk
 // está bien seteado, seguimos aceptando también el mecanismo viejo.
@@ -17,7 +17,7 @@ export async function esAdmin(userId: string): Promise<boolean> {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     const roles = user.publicMetadata?.roles as string[] | undefined;
-    return Array.isArray(roles) && roles.includes(ADMIN_ROLE);
+    return Array.isArray(roles) && roles.some((r) => ADMIN_ROLES.includes(r));
   } catch (error) {
     console.error("[admin] Error al consultar metadata de Clerk:", error);
     return false; // fail-closed: si no podemos confirmar, no es admin
