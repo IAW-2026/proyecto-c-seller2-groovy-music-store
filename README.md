@@ -1,9 +1,68 @@
-# seller
+## 🔗 Deploy de producción
 
-Aplicación **Seller** del [Proyecto IAW 2026](https://iaw-2026.github.io/proyecto/) — comisión `<!-- completar -->`.
-
-Esta app corresponde al rol del vendedor en los proyectos de tipo **B (Delivery)** y **C (Marketplace)**.
+[https://proyecto-c-seller2-groovy-music-sto.vercel.app](https://proyecto-c-seller2-groovy-music-sto.vercel.app)
 
 ---
 
-Enunciado completo: <https://iaw-2026.github.io/proyecto/>
+## 👤 Usuarios disponibles
+
+| Rol | Email | Contraseña | Acceso |
+|-----|-------|------------|--------|
+| Vendedor | `seller+clerk_test@iaw.com` | `iawuser#` | `/dashboard` |
+| Admin | `admin_seller+clerk_test@iaw.com` | `iawuser#` | `/admin` |
+
+---
+
+## 📋 Instrucciones de uso
+
+**Panel vendedor** — ingresar con `seller+clerk_test@iaw.com`:
+- `/dashboard` — resumen general con estadísticas de ventas e ingresos
+- `/mis-productos` — listado con búsqueda por título/artista, filtros por formato y género, paginación. Permite publicar, editar y eliminar productos
+- `/mis-ventas` — gestión de órdenes con avance de estado (Pendiente → Preparando → Listo para envío → Enviado)
+- `/balance` — consulta de acreditaciones (mockeado para Etapa 2, se integra con Payments App en Etapa 3)
+- `/perfil` — edición del perfil del negocio
+
+**Panel admin** — ingresar con `admin_seller+clerk_test@iaw.com`:
+- `/admin` — overview con totales del sistema
+- `/admin/productos` — listado completo de productos con opción de desactivar
+- `/admin/vendedores` — listado de vendedores con conteo de productos activos y ventas
+
+---
+
+## 📝 Descripción del proyecto
+
+**Groovy Music Store — Seller App** es el panel de vendedores de un marketplace de música física (vinilos, CDs y cassettes). Permite a los vendedores publicar y gestionar su catálogo, hacer seguimiento de sus ventas y consultar su balance. Forma parte de un sistema de cuatro aplicaciones independientes (Buyer App, Seller App, Shipping App y Payments App), cada una con su propia base de datos y autenticación compartida mediante Clerk.
+
+La aplicación expone una API REST que será consumida por la Buyer App en la Etapa 3: catálogo de productos con búsqueda y filtros, consulta por lote de IDs, reserva de stock, confirmación de venta y liberación de stock ante pagos fallidos. La lógica de reserva implementa un modelo transaccional con estados (ACTIVA / CONFIRMADA / LIBERADA) para garantizar consistencia ante operaciones concurrentes.
+
+---
+
+## 🗒️ Notas para la corrección
+
+- **Llamadas inter-app mockeadas:** el balance (`/balance`) consulta `PAYMENTS_APP_URL` con fallback a datos simulados, ya que Payments App no está integrada en esta etapa.
+- **Datos precargados:** 24 productos activos (10 vinilos, 7 CDs, 5 cassettes, 2 desactivados) y 20 ventas distribuidas en todos los estados posibles, accesibles con el usuario vendedor.
+- **Productos desactivados:** visibles en `/admin/productos` pero no en el catálogo público. Permiten evaluar el flujo de moderación del panel admin.
+- **API externa:** las imágenes de productos se gestionan mediante Cloudinary (upload y almacenamiento).
+- **Autorización inter-servicios:** los endpoints de la API aceptan `Authorization: Bearer <JWT>` y también `X-API-Key` como mecanismo alternativo para comunicación M2M en Etapa 3.
+
+## 🆕 Novedades de la Etapa 3
+
+### Endpoints de Analytics (consumidos por el Analytics Dashboard)
+- `GET /api/analytics/resumen` — totales de productos, ventas, ingresos brutos y top 5 productos (unidades e ingresos por producto)
+- `GET /api/analytics/ventas-por-dia` — serie diaria de ventas e ingresos
+
+### Endpoints de Control Plane (panel de administración global)
+- `GET /api/admin/products` — listado con filtros (`sellerId`, `activo`) y paginación
+- `PATCH /api/admin/products/[id]` — edición parcial, incluida activación/suspensión de un producto
+- `DELETE /api/admin/products/[id]` — borrado lógico (no se elimina la fila por las referencias de `ItemVenta`/`ItemReserva`)
+- `GET /api/admin/sellers` — listado de vendedores con paginación, productos activos y ventas totales
+- `GET /api/sellers/[id]` — perfil público de un vendedor (consumido por otras apps)
+
+### Autorización para Control Plane
+- `lib/admin.ts` valida acceso de administrador por dos vías: una lista de respaldo (`ADMIN_USER_IDS`) y el rol declarado en `publicMetadata.roles` de Clerk.
+- Se amplió para aceptar tanto `"admin"` como `"super_admin"`, ya que el Control Plane (compartido entre dos integrantes) usa ese segundo rol para el usuario `superadmin`, que así puede acceder a `/admin` con la misma cuenta de Clerk compartida entre todas las apps.
+
+### Decisión de diseño: NO se implementó la suspensión de vendedores
+- Se evaluó `PATCH /api/admin/sellers/[id]` para suspender un vendedor completo, pero se decidió no incluirlo en esta etapa.
+- Motivo: implica decisiones de cascada sin resolver entre apps (¿se ocultan sus productos en la Buyer App? ¿qué pasa con ventas en curso?) que exceden el tiempo disponible para esta entrega.
+- Queda documentado como trabajo futuro, no como omisión.

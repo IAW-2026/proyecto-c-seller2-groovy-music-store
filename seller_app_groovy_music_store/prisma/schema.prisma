@@ -1,0 +1,128 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PerfilVendedor {
+  clerk_user_id String     @id
+  descripcion   String?
+  nombre        String?
+  direccion     String?
+  ciudad        String?
+  provincia     String?
+  codigo_postal String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  productos     Producto[]
+}
+
+model Producto {
+  id          String     @id @default(uuid())
+  seller_id   String
+  titulo      String
+  descripcion String?
+  artista     String
+  genero      String
+  formato     Formato
+  condicion   Condicion
+  precio      Decimal
+  stock       Int        @default(0)
+  imagenes    String[]
+  activo      Boolean    @default(true)
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  vendedor    PerfilVendedor @relation(fields: [seller_id], references: [clerk_user_id])
+  items_venta ItemVenta[]
+  reservas    ItemReserva[]
+}
+
+model Venta {
+  id                 String            @id @default(uuid())
+  order_id_externo   String            @unique
+  buyer_id_externo   String
+  seller_id          String
+  estado_preparacion EstadoPreparacion @default(PENDIENTE)
+  envio_id_externo   String?
+  direccion_envio    Json?
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
+  items              ItemVenta[]
+}
+
+model ItemVenta {
+  id          String   @id @default(uuid())
+  venta_id    String
+  product_id  String
+  cantidad    Int
+  precio_unit Decimal
+  created_at  DateTime @default(now())
+
+  venta       Venta    @relation(fields: [venta_id], references: [id])
+  producto    Producto @relation(fields: [product_id], references: [id])
+}
+
+model Reserva {
+  id               String          @id @default(uuid())
+  order_id_externo String          @unique
+  buyer_id_externo String
+  seller_id        String
+  estado           EstadoReserva   @default(ACTIVA)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+  items            ItemReserva[]
+}
+
+model ItemReserva {
+  id          String   @id @default(uuid())
+  reserva_id  String
+  product_id  String
+  cantidad    Int
+  precio_unit Decimal
+  created_at  DateTime @default(now())
+
+  reserva     Reserva  @relation(fields: [reserva_id], references: [id])
+  producto    Producto @relation(fields: [product_id], references: [id])
+}
+
+model RegistroBalance {
+  id                 String   @id @default(uuid())
+  seller_id          String
+  balance_retenido   Decimal
+  balance_acreditado Decimal
+  created_at         DateTime @default(now())
+
+  @@index([seller_id, created_at])
+}
+
+enum EstadoReserva {
+  ACTIVA
+  CONFIRMADA
+  LIBERADA
+}
+
+enum Formato {
+  VINILO
+  CD
+  CASSETTE
+  MERCHANDISE
+  OTRO
+}
+
+enum Condicion {
+  NUEVO
+  COMO_NUEVO
+  BUENO
+  ACEPTABLE
+}
+
+enum EstadoPreparacion {
+  PENDIENTE
+  PREPARANDO
+  LISTO_PARA_ENVIO
+  ENVIADO
+}
