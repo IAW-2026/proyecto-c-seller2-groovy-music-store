@@ -1,18 +1,72 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 import { PrismaClient } from "../app/generated/prisma";
+import fs from "fs";
+import {
+  SELLER_ID,
+  PRODUCTOS,
+  BUYERS,
+  DIRECCIONES,
+  ORDENES,
+  ENVIO_IDS,
+} from "./contrato-datos";
 
 const prisma = new PrismaClient();
 
-// ─── IDs reales de Clerk ───────────────────────────────────────────────────
-const SELLER_ID = "user_3EXuSWzfJZGjvTH55jq1VzPWW8l"; // seller+clerktest@iaw.com
-const ADMIN_ID  = "user_3EXuajkCf4mvR9zIEjEmJbPdhol"; // admin_seller+clerktest@iaw.com
+// ─── Descripciones de catálogo (texto de marketing — no es parte del contrato
+// compartido entre apps, así que vive acá nomás, no en contrato-datos.ts) ───
+const DESCRIPCIONES: Record<string, string> = {
+  "Dark Side of the Moon": "Edición original 1973. Excelente estado. Incluye pósters originales.",
+  "Kind of Blue": "Reedición de colección 180g. Estado impecable.",
+  "Honrar la Vida": "Vinilo en perfecto estado. Edición argentina original.",
+  "Thriller": "Vinilo original 1982. Algo de desgaste en la cubierta, disco en buen estado.",
+  "Led Zeppelin IV": "Reedición remasterizada. Stairway to Heaven en vinilo, como debe ser.",
+  "Rumours": "Edición especial 45 aniversario. 180g. Sin uso.",
+  "A Love Supreme": "Prensado original Impulse! Records. Tapa con desgaste leve, disco impecable.",
+  "La Grasa de las Capitales": "Edición argentina original 1979. Clásico del rock nacional.",
+  "Tapestry": "Vinilo 180g reedición. Uno de los álbumes más vendidos de todos los tiempos.",
+  "Obras Completas Vol. 1": "Doble vinilo. Edición especial de colección. Perfecto estado.",
+  "Nevermind": "CD edición especial con booklet extendido.",
+  "Folklore": "CD sellado. Edición estándar.",
+  "OK Computer": "CD remasterizado OKNOTOK 1997-2017. Booklet completo.",
+  "Goodbye Yellow Brick Road": "Doble CD remasterizado. 17 temas clásicos.",
+  "Unplugged in New York": "CD original 1994. Grabación en vivo acústica. Sin rayaduras.",
+  "Café de los Maestros": "CD doble. Grandes maestros del tango argentino. Edición especial.",
+  "El Amor Después del Amor": "CD original. El álbum más vendido del rock nacional.",
+  "Bat Out of Hell": "Cassette original 1977. Clásico del rock.",
+  "Born in the USA": "Cassette original 1984. Funciona perfecto.",
+  "Whitney Houston": "Cassette debut 1985. Coleccionable. Estado muy bueno.",
+  "Charly García en Vivo": "Cassette en vivo. Rareza del rock nacional. Muy buen estado.",
+  "Tango: Zero Hour": "Cassette original American Clavé Records 1986. Coleccionable.",
+  "Abbey Road": "Vinilo con tapa dañada. Disco en buen estado.",
+  "Back in Black": "CD con estuche roto. Se vende solo el disco.",
+};
 
-// ─── Buyer IDs mockeados ───────────────────────────────────────────────────
-const BUYER_A = "user_mock_buyer_001";
-const BUYER_B = "user_mock_buyer_002";
-const BUYER_C = "user_mock_buyer_003";
-const BUYER_D = "user_mock_buyer_004";
+// ─── Imágenes (opcional): si existe prisma/imagenes-productos.json (lo genera
+// el script de subida a Cloudinary que vamos a hacer al final), se usa. Si no
+// existe todavía, todos los productos quedan con imagenes: [] y no rompe nada. ───
+function cargarImagenes(): Record<string, string[]> {
+  const ruta = "prisma/imagenes-productos.json";
+  if (!fs.existsSync(ruta)) return {};
+  try {
+    return JSON.parse(fs.readFileSync(ruta, "utf-8"));
+  } catch {
+    console.warn("⚠ No se pudo leer imagenes-productos.json, sigo sin imágenes.");
+    return {};
+  }
+}
+
+// estado_global del contrato -> estado_preparacion de Seller.
+// Seller no tiene granularidad más allá de ENVIADO: lo que pasa después
+// (en camino / entregado) es responsabilidad de Shipping, no de esta app.
+const MAPA_PREPARACION: Record<string, string> = {
+  PREPARANDO_PENDIENTE: "PENDIENTE",
+  PREPARANDO: "PREPARANDO",
+  LISTO_PARA_ENVIO: "LISTO_PARA_ENVIO",
+  ENVIADO_EN_PREPARACION: "ENVIADO",
+  EN_CAMINO: "ENVIADO",
+  ENTREGADO: "ENVIADO",
+};
 
 async function main() {
   console.log("🌱 Iniciando seed...");
@@ -37,189 +91,101 @@ async function main() {
       codigo_postal: "1043",
     },
   });
-
   console.log("✓ Perfil vendedor creado:", vendedor.nombre);
 
-  const productos = await Promise.all([
+  const imagenesPorTitulo = cargarImagenes();
+  if (Object.keys(imagenesPorTitulo).length === 0) {
+    console.log("ℹ Sin imagenes-productos.json todavía — productos sin fotos por ahora.");
+  }
 
-    // ── VINILOS ──────────────────────────────────────────────────────────
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Dark Side of the Moon", artista: "Pink Floyd",
-      descripcion: "Edición original 1973. Excelente estado. Incluye pósters originales.",
-      genero: "Rock", formato: "VINILO", condicion: "COMO_NUEVO", precio: 8500, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Kind of Blue", artista: "Miles Davis",
-      descripcion: "Reedición de colección 180g. Estado impecable.",
-      genero: "Jazz", formato: "VINILO", condicion: "NUEVO", precio: 6200, stock: 3, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Honrar la Vida", artista: "Mercedes Sosa",
-      descripcion: "Vinilo en perfecto estado. Edición argentina original.",
-      genero: "Folklore", formato: "VINILO", condicion: "BUENO", precio: 3500, stock: 1, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Thriller", artista: "Michael Jackson",
-      descripcion: "Vinilo original 1982. Algo de desgaste en la cubierta, disco en buen estado.",
-      genero: "Pop", formato: "VINILO", condicion: "BUENO", precio: 4800, stock: 1, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Led Zeppelin IV", artista: "Led Zeppelin",
-      descripcion: "Reedición remasterizada. Stairway to Heaven en vinilo, como debe ser.",
-      genero: "Rock", formato: "VINILO", condicion: "NUEVO", precio: 7200, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Rumours", artista: "Fleetwood Mac",
-      descripcion: "Edición especial 45 aniversario. 180g. Sin uso.",
-      genero: "Rock", formato: "VINILO", condicion: "NUEVO", precio: 9100, stock: 1, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "A Love Supreme", artista: "John Coltrane",
-      descripcion: "Prensado original Impulse! Records. Tapa con desgaste leve, disco impecable.",
-      genero: "Jazz", formato: "VINILO", condicion: "BUENO", precio: 11500, stock: 1, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "La Grasa de las Capitales", artista: "Serú Girán",
-      descripcion: "Edición argentina original 1979. Clásico del rock nacional.",
-      genero: "Rock Nacional", formato: "VINILO", condicion: "ACEPTABLE", precio: 5400, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Tapestry", artista: "Carole King",
-      descripcion: "Vinilo 180g reedición. Uno de los álbumes más vendidos de todos los tiempos.",
-      genero: "Pop", formato: "VINILO", condicion: "COMO_NUEVO", precio: 6800, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Obras Completas Vol. 1", artista: "Astor Piazzolla",
-      descripcion: "Doble vinilo. Edición especial de colección. Perfecto estado.",
-      genero: "Tango", formato: "VINILO", condicion: "COMO_NUEVO", precio: 8900, stock: 1, imagenes: [], activo: true,
-    }}),
+  const productos = await Promise.all(
+    PRODUCTOS.map((p) =>
+      prisma.producto.create({
+        data: {
+          id: p.id,
+          seller_id: SELLER_ID,
+          titulo: p.titulo,
+          artista: p.artista,
+          descripcion: DESCRIPCIONES[p.titulo] ?? "",
+          genero: p.genero,
+          formato: p.formato as "VINILO" | "CD" | "CASSETTE" | "MERCHANDISE" | "OTRO",
+          condicion: p.condicion as "NUEVO" | "COMO_NUEVO" | "BUENO" | "ACEPTABLE",
+          precio: p.precio,
+          stock: p.stock,
+          imagenes: imagenesPorTitulo[p.titulo] ?? [],
+          activo: p.activo,
+        },
+      })
+    )
+  );
 
-    // ── CDs ───────────────────────────────────────────────────────────────
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Nevermind", artista: "Nirvana",
-      descripcion: "CD edición especial con booklet extendido.",
-      genero: "Rock", formato: "CD", condicion: "BUENO", precio: 1800, stock: 5, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Folklore", artista: "Taylor Swift",
-      descripcion: "CD sellado. Edición estándar.",
-      genero: "Pop", formato: "CD", condicion: "NUEVO", precio: 3200, stock: 3, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "OK Computer", artista: "Radiohead",
-      descripcion: "CD remasterizado OKNOTOK 1997-2017. Booklet completo.",
-      genero: "Rock", formato: "CD", condicion: "COMO_NUEVO", precio: 2600, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Goodbye Yellow Brick Road", artista: "Elton John",
-      descripcion: "Doble CD remasterizado. 17 temas clásicos.",
-      genero: "Pop", formato: "CD", condicion: "BUENO", precio: 2100, stock: 4, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Unplugged in New York", artista: "Nirvana",
-      descripcion: "CD original 1994. Grabación en vivo acústica. Sin rayaduras.",
-      genero: "Rock", formato: "CD", condicion: "BUENO", precio: 2400, stock: 3, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Café de los Maestros", artista: "Varios Artistas",
-      descripcion: "CD doble. Grandes maestros del tango argentino. Edición especial.",
-      genero: "Tango", formato: "CD", condicion: "NUEVO", precio: 2900, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "El Amor Después del Amor", artista: "Fito Páez",
-      descripcion: "CD original. El álbum más vendido del rock nacional.",
-      genero: "Rock Nacional", formato: "CD", condicion: "BUENO", precio: 1600, stock: 6, imagenes: [], activo: true,
-    }}),
+  const activos = PRODUCTOS.filter((p) => p.activo).length;
+  console.log(`✓ ${productos.length} productos creados (${PRODUCTOS.length - activos} desactivados)`);
 
-    // ── CASSETTES ─────────────────────────────────────────────────────────
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Bat Out of Hell", artista: "Meat Loaf",
-      descripcion: "Cassette original 1977. Clásico del rock.",
-      genero: "Rock", formato: "CASSETTE", condicion: "BUENO", precio: 1500, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Born in the USA", artista: "Bruce Springsteen",
-      descripcion: "Cassette original 1984. Funciona perfecto.",
-      genero: "Rock", formato: "CASSETTE", condicion: "ACEPTABLE", precio: 1200, stock: 3, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Whitney Houston", artista: "Whitney Houston",
-      descripcion: "Cassette debut 1985. Coleccionable. Estado muy bueno.",
-      genero: "Pop", formato: "CASSETTE", condicion: "BUENO", precio: 1400, stock: 2, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Charly García en Vivo", artista: "Charly García",
-      descripcion: "Cassette en vivo. Rareza del rock nacional. Muy buen estado.",
-      genero: "Rock Nacional", formato: "CASSETTE", condicion: "BUENO", precio: 1900, stock: 1, imagenes: [], activo: true,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Tango: Zero Hour", artista: "Astor Piazzolla",
-      descripcion: "Cassette original American Clavé Records 1986. Coleccionable.",
-      genero: "Tango", formato: "CASSETTE", condicion: "ACEPTABLE", precio: 1700, stock: 1, imagenes: [], activo: true,
-    }}),
+  // ─── Reservas + Ventas, a partir del libro de órdenes del contrato ───────
+  let creadasReserva = 0;
+  let creadasVenta = 0;
 
-    // ── DESACTIVADO (para panel admin) ────────────────────────────────────
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Abbey Road", artista: "The Beatles",
-      descripcion: "Vinilo con tapa dañada. Disco en buen estado.",
-      genero: "Rock", formato: "VINILO", condicion: "ACEPTABLE", precio: 5000, stock: 0, imagenes: [], activo: false,
-    }}),
-    prisma.producto.create({ data: {
-      seller_id: SELLER_ID, titulo: "Back in Black", artista: "AC/DC",
-      descripcion: "CD con estuche roto. Se vende solo el disco.",
-      genero: "Rock", formato: "CD", condicion: "ACEPTABLE", precio: 800, stock: 0, imagenes: [], activo: false,
-    }}),
-  ]);
+  for (const orden of ORDENES) {
+    const fecha = new Date(Date.now() - orden.dias_atras * 86_400_000);
 
-  console.log(`✓ ${productos.length} productos creados (2 desactivados)`);
+    const estadoReserva =
+      orden.estado_global === "RESERVADO" ? "ACTIVA"
+      : orden.estado_global === "PAGO_FALLIDO" ? "LIBERADA"
+      : "CONFIRMADA";
 
-  const [
-    darkSide, kindOfBlue, honrarLaVida, thriller, ledzep, rumours, lovesupreme,
-    grasaCapitales, tapestry, obrasPiazzolla,
-    nevermind, folkloreTSwift, okComputer, eltonJohn, unplugged, cafeMaestros, fito,
-    batOutOfHell, bornUSA, whitney, charlyVivo, tangoZero,
-  ] = productos;
+    await prisma.reserva.create({
+      data: {
+        order_id_externo: orden.id,
+        buyer_id_externo: orden.buyer_id,
+        seller_id: SELLER_ID,
+        estado: estadoReserva as "ACTIVA" | "CONFIRMADA" | "LIBERADA",
+        created_at: fecha,
+        items: {
+          create: orden.items.map((it) => ({
+            product_id: it.product_id,
+            cantidad: it.cantidad,
+            precio_unit: it.precio_unit,
+          })),
+        },
+      },
+    });
+    creadasReserva++;
 
-  await Promise.all([
-    // PENDIENTE
-    prisma.venta.create({ data: { order_id_externo: "order-demo-001", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: darkSide.id,       cantidad: 1, precio_unit: darkSide.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-002", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: nevermind.id,      cantidad: 2, precio_unit: nevermind.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-003", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: folkloreTSwift.id, cantidad: 1, precio_unit: folkloreTSwift.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-004", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: ledzep.id,         cantidad: 1, precio_unit: ledzep.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-005", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PENDIENTE", items: { create: [{ product_id: eltonJohn.id,      cantidad: 1, precio_unit: eltonJohn.precio }] } } }),
+    const estadoPreparacion = MAPA_PREPARACION[orden.estado_global];
+    if (estadoPreparacion) {
+      await prisma.venta.create({
+        data: {
+          order_id_externo: orden.id,
+          buyer_id_externo: orden.buyer_id,
+          seller_id: SELLER_ID,
+          estado_preparacion: estadoPreparacion as
+            | "PENDIENTE" | "PREPARANDO" | "LISTO_PARA_ENVIO" | "ENVIADO",
+          envio_id_externo: ENVIO_IDS[orden.id] ?? null,
+          direccion_envio: DIRECCIONES[orden.buyer_id] ?? undefined,
+          created_at: fecha,
+          items: {
+            create: orden.items.map((it) => ({
+              product_id: it.product_id,
+              cantidad: it.cantidad,
+              precio_unit: it.precio_unit,
+            })),
+          },
+        },
+      });
+      creadasVenta++;
+    }
+  }
 
-    // PREPARANDO
-    prisma.venta.create({ data: { order_id_externo: "order-demo-006", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: kindOfBlue.id,     cantidad: 1, precio_unit: kindOfBlue.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-007", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: thriller.id,       cantidad: 1, precio_unit: thriller.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-008", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: okComputer.id,     cantidad: 1, precio_unit: okComputer.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-009", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "PREPARANDO", items: { create: [{ product_id: batOutOfHell.id,   cantidad: 2, precio_unit: batOutOfHell.precio }] } } }),
+  console.log(`✓ ${creadasReserva} reservas creadas (${creadasVenta} confirmadas como venta)`);
 
-    // LISTO_PARA_ENVIO
-    prisma.venta.create({ data: { order_id_externo: "order-demo-010", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: grasaCapitales.id, cantidad: 1, precio_unit: grasaCapitales.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-011", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: obrasPiazzolla.id, cantidad: 1, precio_unit: obrasPiazzolla.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-012", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: tapestry.id,       cantidad: 1, precio_unit: tapestry.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-013", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "LISTO_PARA_ENVIO", items: { create: [{ product_id: unplugged.id,      cantidad: 1, precio_unit: unplugged.precio }] } } }),
-
-    // ENVIADO
-    prisma.venta.create({ data: { order_id_externo: "order-demo-014", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: honrarLaVida.id,   cantidad: 1, precio_unit: honrarLaVida.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-015", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: rumours.id,        cantidad: 1, precio_unit: rumours.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-016", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: fito.id,           cantidad: 2, precio_unit: fito.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-017", buyer_id_externo: BUYER_A, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: cafeMaestros.id,   cantidad: 1, precio_unit: cafeMaestros.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-018", buyer_id_externo: BUYER_B, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: lovesupreme.id,    cantidad: 1, precio_unit: lovesupreme.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-019", buyer_id_externo: BUYER_C, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: bornUSA.id,        cantidad: 2, precio_unit: bornUSA.precio }] } } }),
-    prisma.venta.create({ data: { order_id_externo: "order-demo-020", buyer_id_externo: BUYER_D, seller_id: SELLER_ID, estado_preparacion: "ENVIADO", items: { create: [{ product_id: charlyVivo.id,     cantidad: 1, precio_unit: charlyVivo.precio }] } } }),
-  ]);
-
-  console.log("✓ 20 ventas creadas (5 pendientes, 4 preparando, 4 listas, 7 enviadas)");
-
-  const [totalProductos, totalActivos, totalVentas, itemsVendidos] = await Promise.all([
-    prisma.producto.count(),
-    prisma.producto.count({ where: { activo: true } }),
-    prisma.venta.count(),
+  // ─── Resumen final ────────────────────────────────────────────────────────
+  const [porEstadoPrep, totalIngresos] = await Promise.all([
+    prisma.venta.groupBy({ by: ["estado_preparacion"], _count: { _all: true } }),
     prisma.itemVenta.findMany({ select: { precio_unit: true, cantidad: true } }),
   ]);
 
-  const totalIngresos = itemsVendidos.reduce(
+  const ingresos = totalIngresos.reduce(
     (acc, i) => acc + Number(i.precio_unit) * i.cantidad,
     0
   );
@@ -227,10 +193,15 @@ async function main() {
   console.log("");
   console.log("📊 Resumen del seed:");
   console.log(`   Vendedor:          Groovy Records (${SELLER_ID})`);
-  console.log(`   Admin:             sin perfil vendedor (${ADMIN_ID})`);
-  console.log(`   Productos totales: ${totalProductos} (${totalActivos} activos, 2 desactivados)`);
-  console.log(`   Ventas:            ${totalVentas}`);
-  console.log(`   Ingresos totales:  $${totalIngresos.toLocaleString("es-AR")}`);  console.log("");
+  console.log(`   Compradores:       ${BUYERS.length} (1 real + ${BUYERS.length - 1} de fondo)`);
+  console.log(`   Productos totales: ${productos.length} (${activos} activos, ${productos.length - activos} desactivados)`);
+  console.log(`   Reservas:          ${creadasReserva}`);
+  console.log(`   Ventas:            ${creadasVenta}`);
+  for (const grupo of porEstadoPrep) {
+    console.log(`     - ${grupo.estado_preparacion}: ${grupo._count._all}`);
+  }
+  console.log(`   Ingresos (ventas): $${ingresos.toLocaleString("es-AR")}`);
+  console.log("");
   console.log("✅ Seed completado. Credenciales de acceso:");
   console.log("   /dashboard  → seller+clerktest@iaw.com      (contraseña: iawuser#)");
   console.log("   /admin      → admin_seller+clerktest@iaw.com (contraseña: iawuser#)");
