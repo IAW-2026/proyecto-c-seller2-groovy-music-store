@@ -44,3 +44,25 @@ La aplicación expone una API REST que será consumida por la Buyer App en la Et
 - **Productos desactivados:** visibles en `/admin/productos` pero no en el catálogo público. Permiten evaluar el flujo de moderación del panel admin.
 - **API externa:** las imágenes de productos se gestionan mediante Cloudinary (upload y almacenamiento).
 - **Autorización inter-servicios:** los endpoints de la API aceptan `Authorization: Bearer <JWT>` y también `X-API-Key` como mecanismo alternativo para comunicación M2M en Etapa 3.
+
+## 🆕 Novedades de la Etapa 3
+
+### Endpoints de Analytics (consumidos por el Analytics Dashboard)
+- `GET /api/analytics/resumen` — totales de productos, ventas, ingresos brutos y top 5 productos (unidades e ingresos por producto)
+- `GET /api/analytics/ventas-por-dia` — serie diaria de ventas e ingresos
+
+### Endpoints de Control Plane (panel de administración global)
+- `GET /api/admin/products` — listado con filtros (`sellerId`, `activo`) y paginación
+- `PATCH /api/admin/products/[id]` — edición parcial, incluida activación/suspensión de un producto
+- `DELETE /api/admin/products/[id]` — borrado lógico (no se elimina la fila por las referencias de `ItemVenta`/`ItemReserva`)
+- `GET /api/admin/sellers` — listado de vendedores con paginación, productos activos y ventas totales
+- `GET /api/sellers/[id]` — perfil público de un vendedor (consumido por otras apps)
+
+### Autorización para Control Plane
+- `lib/admin.ts` valida acceso de administrador por dos vías: una lista de respaldo (`ADMIN_USER_IDS`) y el rol declarado en `publicMetadata.roles` de Clerk.
+- Se amplió para aceptar tanto `"admin"` como `"super_admin"`, ya que el Control Plane (compartido entre dos integrantes) usa ese segundo rol para el usuario `superadmin`, que así puede acceder a `/admin` con la misma cuenta de Clerk compartida entre todas las apps.
+
+### Decisión de diseño: NO se implementó la suspensión de vendedores
+- Se evaluó `PATCH /api/admin/sellers/[id]` para suspender un vendedor completo, pero se decidió no incluirlo en esta etapa.
+- Motivo: implica decisiones de cascada sin resolver entre apps (¿se ocultan sus productos en la Buyer App? ¿qué pasa con ventas en curso?) que exceden el tiempo disponible para esta entrega.
+- Queda documentado como trabajo futuro, no como omisión.
